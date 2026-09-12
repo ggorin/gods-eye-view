@@ -31,6 +31,9 @@ const PROVIDER_STATIC_REFRESH_MS = Object.freeze({
   'austin transportation & public works': 5 * 60 * 1000,
   'transport for london': 3 * 60 * 1000,
   caltrans: 3 * 60 * 1000,
+  // NYC DOT republishes stills every few seconds; 3 min matches the other
+  // city packs so ambient cards don't spend the frame budget on one city.
+  'nyc dot': 3 * 60 * 1000,
 });
 
 /**

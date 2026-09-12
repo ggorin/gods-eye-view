@@ -1850,7 +1850,7 @@ its criteria cannot be silently ignored.
 | Satellites | CelesTrak | `src/data/satellites.js` | `/api/celestrak` | 120s |
 | Space Missions (30d) | Launch Library 2 + CelesTrak | `src/data/rocketLaunches.js` | `/api/launches` + `/api/celestrak/active` | 5 min |
 | Traffic | OSM Overpass (+ optional TomTom live flow) | `src/data/traffic.js` | `/api/overpass` + `/api/tomtom` | viewport-driven |
-| CCTV | Austin + Caltrans (CA) + TfL London Open Data + Street View fallback | `src/data/cctv.js` | `/api/cctv` | 10s (active) |
+| CCTV | Austin + Caltrans (CA) + TfL London + NYC DOT Open Data + Street View fallback | `src/data/cctv.js` | `/api/cctv` | 10s (active) |
 | Radio | Radio Browser (public-domain station directory) | `src/data/radio.js` | `/api/radio/stations`, `/api/radio/click/:uuid` | 45 min directory refresh |
 | Bikeshare 🚲 | GBFS (Lyft + BCycle) | `src/data/bikeshare.js` | `/api/gbfs` | 60s |
 | Datacenters ▣ | OSM extract (bundled) | `src/data/localLayers.js` | — | static |
@@ -2201,7 +2201,24 @@ silently demoting every later lookup for the session.
   default 36 → 250, hard bound 300), filtered to `camera_status === TURNED_ON` (~815 live of
   1,003 rows). City packs (2026-07-04): Caltrans (districts 4/7/11/3 — SF, LA, San Diego,
   Sacramento; cap 300) and TfL London JamCams (cap 250) join Austin (cap 250) as keyless default
-  sources — ~800 cameras total, all RAW PRIOR poses, stills-first.
+  sources — ~800 cameras total, all RAW PRIOR poses, stills-first. NYC DOT TMC (2026-09-12)
+  adds a fourth keyless pack: New York City traffic cameras across all five boroughs
+  (~975 online of ~975 listed; cap 300 via `CCTV_NYCDOT_MAX_SOURCES`,
+  `CCTV_NYCDOT_ENABLED=0` disables). The catalog is the public webcams map's own
+  `/api/cameras` JSON; frames are 352x240 JPEG stills at `/api/cameras/<id>/image` on the
+  same origin, and a row whose frame URL leaves that origin is dropped (official-origin
+  pin, as TfL). Only `isOnline: "true"` rows register — the field is a STRING — and rows
+  outside a generous NYC bounding box are rejected as catalog errors. Prioritization
+  anchors on one core per borough (Midtown, Lower Manhattan, Downtown Brooklyn, LIC, The
+  Hub, St. George) so the cap spreads across the city instead of stacking Midtown. Heading
+  is parsed from an explicit travel token in the camera name in STRICT mode (~1% of rows:
+  "BQE EB @ Atlantic Ave"); bare cardinals in street names ("West St", "Northern Blvd")
+  are refused. Ground elevation is a per-borough prior (12–30 m) because the payload
+  carries none. The pack appends at the tail of the merge, so the three original packs
+  keep their exact coverage; `CCTV_MAX_SOURCES` default rose 900 → 1,100 so all four
+  default packs seat whole (250 + 300 + 250 + 300), ceiling unchanged at 1,200. Terms:
+  see DATA_SOURCES.md — NYC DOT's developer agreement has not been confirmed to cover the
+  public map API, which is why the pack has its own kill switch.
 - **CCTV v3 UX — viewshed + calibration gizmo** (built 2026-07-05 and field
   validated 2026-07-21): the COVERAGE toggle is a
   tri-state cycle `OFF → ON → VIEWSHED`; viewshed mode renders each visible camera's frustum
@@ -2234,7 +2251,7 @@ silently demoting every later lookup for the session.
   2026-08-02): the LOD-selected nearby static cameras (20/28/40 by zoom,
   `cctvLod.js`) get **screen-space thumbnail cards** through the shared world-overlay host
   showing paced static frames — reselection on `camera.moveEnd` only, at most one frame fetch
-  per second layer-wide, per-source cadences (Austin 5 min, TfL/Caltrans 3 min). Zero-flicker:
+  per second layer-wide, per-source cadences (Austin 5 min, TfL/Caltrans/NYC DOT 3 min). Zero-flicker:
   a card renders nothing until its first frame, a drawn frame persists through failed fetches,
   and eviction grace (2-pass/5 s) stops budget-edge churn. Camera icons stay visible at every
   zoom. Eligible candidates are filtered to in-view stills with valid IDs,

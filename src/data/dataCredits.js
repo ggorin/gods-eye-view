@@ -128,6 +128,12 @@ export const DATA_CREDITS = [
       'Contains OS data © Crown copyright and database rights.',
   },
   {
+    key: 'nycdot-cctv',
+    html:
+      'CCTV cameras &amp; frames (New York City): NYC DOT Traffic Management Center — ' +
+      '<a href="https://webcams.nyctmc.org/" target="_blank" rel="noopener">webcams.nyctmc.org</a>',
+  },
+  {
     key: 'gbfs',
     html: 'Bikeshare availability: GBFS operator feeds (e.g. Austin BCycle)',
   },

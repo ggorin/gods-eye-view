@@ -1493,7 +1493,9 @@ const DEFAULT_AUSTIN_ROWS_URL = 'https://data.austintexas.gov/api/views/b4k4-adk
 /** Default cap on Austin cameras after distance-based prioritization. */
 const DEFAULT_AUSTIN_MAX_SOURCES = 250;
 /** Global cap on total CCTV sources served by the proxy. */
-const DEFAULT_CCTV_MAX_SOURCES = 900;
+/** Seats the four default packs whole (250 Austin + 300 Caltrans + 250 TfL +
+ * 300 NYC DOT); the hard ceiling below stays 1,200. */
+const DEFAULT_CCTV_MAX_SOURCES = 1100;
 /** Reference point for Austin camera prioritization (Congress & 6th). */
 const AUSTIN_DOWNTOWN = { lat: 30.2672, lon: -97.7431 };
 /** Caltrans CCTV: one JSON feed per district, identical schema statewide. */
@@ -1514,7 +1516,41 @@ const TFL_JAMCAM_URL = 'https://api.tfl.gov.uk/Place/Type/JamCam';
 const TFL_IMAGE_ORIGIN = 'https://s3-eu-west-1.amazonaws.com/jamcams.tfl.gov.uk/';
 const DEFAULT_TFL_MAX_SOURCES = 250;
 const LONDON_CENTER = { lat: 51.5074, lon: -0.1278 };
-/** Camera CATALOGS change rarely; 15 min keeps multi-megabyte upstream list refetches (Austin rows.json + 4 Caltrans districts + TfL) infrequent. Frames are fetched per-request and are unaffected. */
+/** NYC DOT Traffic Management Center: one keyless JSON catalog (~975 cameras,
+ * all five boroughs); frames are plain JPEG stills at a per-camera URL on the
+ * same origin. Both endpoints are the public webcams map's own API. */
+const NYCDOT_ORIGIN = 'https://webcams.nyctmc.org';
+const NYCDOT_CAMERAS_URL = `${NYCDOT_ORIGIN}/api/cameras`;
+/** Every frame URL must sit under this prefix — the official-origin pin, same
+ * rule as the TfL S3 bucket. A catalog row pointing anywhere else is dropped. */
+const NYCDOT_IMAGE_PREFIX = `${NYCDOT_ORIGIN}/api/cameras/`;
+const DEFAULT_NYCDOT_MAX_SOURCES = 300;
+/** Prioritization anchors: one core per borough, so a cap keeps the densest
+ * part of each borough instead of spending every slot in Midtown. */
+const NYCDOT_ANCHORS = [
+  { lat: 40.7549, lon: -73.984 }, // Midtown Manhattan
+  { lat: 40.7081, lon: -74.0091 }, // Lower Manhattan
+  { lat: 40.6928, lon: -73.9903 }, // Downtown Brooklyn
+  { lat: 40.7447, lon: -73.9485 }, // Long Island City, Queens
+  { lat: 40.8168, lon: -73.9227 }, // The Hub, Bronx
+  { lat: 40.6437, lon: -74.0765 }, // St. George, Staten Island
+];
+/** Ground-elevation priors in metres, by borough. The payload carries no
+ * elevation; on a keyless (no-tileset) stack the client's one-shot ground snap
+ * never fires, so this prior is the only height a camera gets there. */
+const NYCDOT_BOROUGH_ELEVATION_M = {
+  manhattan: 12,
+  brooklyn: 18,
+  queens: 20,
+  bronx: 28,
+  'staten island': 30,
+};
+const NYCDOT_DEFAULT_ELEVATION_M = 15;
+/** Rows outside this box are catalog errors (a camera on null island or in
+ * Albany), not New York City cameras. Generous: covers the five boroughs plus
+ * the bridge and tunnel approaches on the NJ and Westchester sides. */
+const NYCDOT_BOUNDS = { minLat: 40.45, maxLat: 41.0, minLon: -74.3, maxLon: -73.65 };
+/** Camera CATALOGS change rarely; 15 min keeps multi-megabyte upstream list refetches (Austin rows.json + 4 Caltrans districts + TfL + NYC DOT) infrequent. Frames are fetched per-request and are unaffected. */
 const CCTV_SOURCE_CACHE_MS = 15 * 60 * 1000;
 /** Per-provider catalog-fetch timeout. Bounds the worst-case refresh so one
  * stalled upstream can't leave getCctvSources (and thus every CCTV route)
@@ -2122,6 +2158,124 @@ async function loadTflSourcesFromOpenData() {
 }
 
 /**
+ * Normalize the NYC DOT camera catalog into camera source objects.
+ *
+ * Split out from the fetch so the shape handling is unit-testable without a
+ * network round trip.
+ *
+ * The payload is a flat array of `{id, name, latitude, longitude, area,
+ * isOnline, imageUrl}` rows. Only rows reporting online (the field is the
+ * STRING "true", not a boolean) with finite coordinates inside the NYC box and
+ * a frame URL on the official origin are kept. Offline devices answer the
+ * last frame they ever sent, which looks live and is not.
+ *
+ * @param {unknown} payload - Parsed /api/cameras response.
+ * @returns {Array<object>} Normalized camera source objects.
+ */
+export function normalizeNycdotCatalogPayload(payload) {
+  if (!Array.isArray(payload)) return [];
+  const cameras = [];
+  const seen = new Set();
+
+  for (const row of payload) {
+    if (!row || typeof row !== 'object') continue;
+    const online = row.isOnline === true || String(row.isOnline).trim().toLowerCase() === 'true';
+    if (!online) continue;
+    // Coordinates must be present as numbers. Number(null) and Number('') are
+    // both 0, so a missing field would otherwise land on null island.
+    const lat = typeof row.latitude === 'number' ? row.latitude : NaN;
+    const lon = typeof row.longitude === 'number' ? row.longitude : NaN;
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue;
+    if (lat < NYCDOT_BOUNDS.minLat || lat > NYCDOT_BOUNDS.maxLat) continue;
+    if (lon < NYCDOT_BOUNDS.minLon || lon > NYCDOT_BOUNDS.maxLon) continue;
+
+    const rawId = String(row.id || '').trim();
+    if (!rawId || seen.has(rawId)) continue;
+    const imageUrl = String(row.imageUrl || '');
+    if (!imageUrl.startsWith(NYCDOT_IMAGE_PREFIX)) continue; // official-origin pin
+    seen.add(rawId);
+
+    const name = String(row.name || rawId).trim();
+    const borough = String(row.area || '').trim();
+    const cameraId = `nycdot-${rawId}`;
+    // Heading comes from an explicit travel token in the NAME ("BQE EB @
+    // Atlantic Ave"), strict mode only. NYC street names are full of bare
+    // cardinals ("West St", "Northern Blvd", "North Conduit Ave") that say
+    // nothing about where the camera points, so those are refused. Only
+    // CARDINAL tokens count: the strict parser also accepts "NE"/"NW"/"SE"/"SW",
+    // and "NE Thruway" is the New England Thruway, not a northeast facing —
+    // NYC roadway travel tokens are never intercardinal. About 1% of rows
+    // carry a token; the rest take the id-hash fallback at low confidence,
+    // same as headingless Austin/TfL cameras.
+    const heading = directionToHeading(name, false);
+    const hasHeading = Number.isFinite(heading) && heading % 90 === 0;
+
+    cameras.push({
+      id: cameraId,
+      name,
+      city: borough ? `${borough}, NYC` : 'New York City',
+      cityId: 'nyc',
+      provider: 'NYC DOT',
+      lat,
+      lon,
+      headingDeg: hasHeading ? heading : fallbackHeadingFromId(cameraId),
+      headingConfidence: hasHeading ? 'high' : 'low',
+      // Same two fabricated pose personalities as Austin/Caltrans/TfL: RAW
+      // PRIORS only — the client's one-shot ground snap and manual calibration
+      // own the truth wherever a tileset exists.
+      pitchDeg: hasHeading ? -24 : -18,
+      fovDeg: hasHeading ? 56 : 44,
+      rangeM: hasHeading ? 210 : 145,
+      // NYC DOT cameras hang from signal mast arms and pole tops at
+      // intersections; highway units sit higher on gantries.
+      mountHeightM: hasHeading ? 10 : 8,
+      groundElevationM: NYCDOT_BOROUGH_ELEVATION_M[borough.toLowerCase()] ?? NYCDOT_DEFAULT_ELEVATION_M,
+      feedType: 'image',
+      url: imageUrl,
+      snapshotUrl: imageUrl,
+      sourceKind: 'nycdot-tmc',
+      license: 'NYC DOT Traffic Management Center — webcams.nyctmc.org',
+    });
+  }
+  return cameras;
+}
+
+/**
+ * Fetch NYC DOT traffic cameras (New York City, all five boroughs), keyless.
+ *
+ * One catalog call to the public webcams map's own API; frames are plain
+ * JPEG stills on the same origin (352x240, republished every few seconds).
+ * Capped by CCTV_NYCDOT_MAX_SOURCES and prioritized nearest-to-any-borough-core
+ * so a cap spreads across the city instead of stacking Midtown.
+ *
+ * @returns {Promise<Array<object>>} Normalized camera source objects.
+ */
+async function loadNycdotSourcesFromOpenData() {
+  try {
+    const resp = await fetch(NYCDOT_CAMERAS_URL, {
+      headers: { Accept: 'application/json' },
+      signal: AbortSignal.timeout(CCTV_SOURCE_FETCH_TIMEOUT_MS),
+    });
+    if (!resp.ok) {
+      console.warn('[CCTV] NYC DOT camera download failed:', resp.status);
+      return [];
+    }
+    const cameras = normalizeNycdotCatalogPayload(await resp.json());
+
+    const maxRaw = Number(process.env.CCTV_NYCDOT_MAX_SOURCES || DEFAULT_NYCDOT_MAX_SOURCES);
+    const maxCount = Number.isFinite(maxRaw)
+      ? Math.max(8, Math.min(600, Math.floor(maxRaw)))
+      : DEFAULT_NYCDOT_MAX_SOURCES;
+    const prioritized = prioritizeSources(cameras, maxCount, NYCDOT_ANCHORS);
+    console.log(`[CCTV] Loaded NYC DOT camera sources: ${cameras.length} online (using nearest ${prioritized.length})`);
+    return prioritized;
+  } catch (error) {
+    console.warn('[CCTV] NYC DOT camera download error:', error?.message || error);
+    return [];
+  }
+}
+
+/**
  * Normalize a raw CCTV source item into a canonical shape with safe defaults.
  *
  * @param {object} item - Raw source from file, env, or Austin Open Data.
@@ -2192,27 +2346,38 @@ async function refreshCctvSources() {
 
   const forceAustin = String(process.env.CCTV_FORCE_AUSTIN || '').trim() === '1';
   const preferAustin = String(process.env.CCTV_PREFER_AUSTIN || '1').trim() !== '0';
-  // Live open-data packs (Austin + Caltrans + TfL) load unless a file/env pack
-  // is configured and live packs aren't forced — same gate that governed the
-  // Austin-only fetch, now governing all three. Each pack fails independently.
+  // Live open-data packs (Austin + Caltrans + TfL + NYC DOT) load unless a
+  // file/env pack is configured and live packs aren't forced — same gate that
+  // governed the Austin-only fetch, now governing all four. Each pack fails
+  // independently.
   const needsLiveSources = forceAustin || ((fromFile.length + fromEnv.length) === 0 && preferAustin);
   const tflEnabled = String(process.env.CCTV_TFL_ENABLED || '1').trim() !== '0';
+  const nycdotEnabled = String(process.env.CCTV_NYCDOT_ENABLED || '1').trim() !== '0';
 
   let fromAustin = [];
   let fromCaltrans = [];
   let fromTfl = [];
+  let fromNycdot = [];
   if (needsLiveSources) {
-    const [austinResult, caltransResult, tflResult] = await Promise.allSettled([
+    const [austinResult, caltransResult, tflResult, nycdotResult] = await Promise.allSettled([
       loadAustinSourcesFromOpenData(),
       loadCaltransSourcesFromOpenData(),
       tflEnabled ? loadTflSourcesFromOpenData() : Promise.resolve([]),
+      nycdotEnabled ? loadNycdotSourcesFromOpenData() : Promise.resolve([]),
     ]);
     fromAustin = austinResult.status === 'fulfilled' ? austinResult.value : [];
     fromCaltrans = caltransResult.status === 'fulfilled' ? caltransResult.value : [];
     fromTfl = tflResult.status === 'fulfilled' ? tflResult.value : [];
+    fromNycdot = nycdotResult.status === 'fulfilled' ? nycdotResult.value : [];
   }
   // Live sources first so file/env overrides win on duplicate IDs (Map last-write).
-  const merged = [...fromAustin, ...fromCaltrans, ...fromTfl, ...fromFile, ...fromEnv];
+  //
+  // Pack order also decides who loses to the global CCTV_MAX_SOURCES cap
+  // below, because that cap is a plain slice. New packs append at the tail so
+  // the three original packs keep exactly the coverage they had; at default
+  // per-pack caps (250 + 300 + 250 + 300 = 1,100) the global default of 1,100
+  // seats every pack whole, and lowering CCTV_MAX_SOURCES trims NYC first.
+  const merged = [...fromAustin, ...fromCaltrans, ...fromTfl, ...fromNycdot, ...fromFile, ...fromEnv];
 
   // Deduplicate by camera ID (last-write wins because of Map.set)
   const byId = new Map();

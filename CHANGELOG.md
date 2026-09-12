@@ -13,6 +13,13 @@ of current runtime behavior, see [`docs/CURRENT-STATE.md`](docs/CURRENT-STATE.md
 
 ## [Unreleased]
 
+- NYC DOT traffic cameras join the CCTV mesh as a fourth keyless source pack:
+  ~975 online cameras across all five boroughs, capped at 300 by default
+  (`CCTV_NYCDOT_MAX_SOURCES`) and spread by nearest-borough-core so the cap does
+  not stack Midtown. `CCTV_NYCDOT_ENABLED=0` removes the pack. The overall
+  `CCTV_MAX_SOURCES` default rises from 900 to 1,100 so every default pack seats
+  whole; the 1,200 ceiling is unchanged.
+
 - Separate terrain, traffic, FIRMS and GBFS middleware into focused provider
   modules, preserving local configuration, routes and cache/error behavior.
 
