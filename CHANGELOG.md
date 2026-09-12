@@ -23,6 +23,12 @@ of current runtime behavior, see [`docs/CURRENT-STATE.md`](docs/CURRENT-STATE.md
   and a bundled camera-model registry read from frame EXIF sets a per-model
   field of view and flags pan-tilt-zoom units.
 
+- 511NY (NYSDOT) cameras join the CCTV mesh as a fifth keyless pack: New York
+  highway cameras with published facings, NYC region by default and statewide
+  by opt-in, using each camera's 511NY snapshot page as the still. Cameras on
+  the same mount as an NYC DOT camera are not duplicated. `CCTV_MAX_SOURCES`
+  default is now 1,400 (ceiling 1,500) so every default pack seats whole.
+
 - Separate terrain, traffic, FIRMS and GBFS middleware into focused provider
   modules, preserving local configuration, routes and cache/error behavior.
 

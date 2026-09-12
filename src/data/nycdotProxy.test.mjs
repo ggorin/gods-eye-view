@@ -247,3 +247,97 @@ test('camera-model registry file is optional and malformed content is ignored', 
 
   assert.deepEqual(loadNycdotModelRegistry(path.join(dir, 'missing.json')), {});
 });
+
+// ---- 511NY pack -------------------------------------------------------------
+
+import { normalizeNy511CatalogPayload } from '../../vite.config.js';
+
+const ny511PackRow = (overrides = {}) => ({
+  ID: 'Skyline-2003',
+  Name: 'I-278 at Lee Avenue',
+  Latitude: 40.70537,
+  Longitude: -73.95441,
+  DirectionOfTravel: 'Westbound',
+  RoadwayName: 'Brooklyn Queens Expressway (I-278) [Kings]',
+  Url: 'https://511ny.org/map/Cctv/2003',
+  VideoUrl: 'https://s9.nysdot.skyvdn.com/rtplive/R11_123/playlist.m3u8',
+  Disabled: false,
+  Blocked: false,
+  ...overrides,
+});
+
+test('511NY pack keeps enabled, unblocked, in-region rows with an official still page', () => {
+  const cameras = normalizeNy511CatalogPayload([
+    ny511PackRow({ ID: 'ok' }),
+    ny511PackRow({ ID: 'disabled', Disabled: true }),
+    ny511PackRow({ ID: 'blocked', Blocked: true }),
+    ny511PackRow({ ID: 'nolat', Latitude: null }),
+    ny511PackRow({ ID: 'strlon', Longitude: '-73.9' }),
+    ny511PackRow({ ID: 'null-island', Latitude: 0, Longitude: 0 }),
+    ny511PackRow({ ID: 'albany', Latitude: 42.6526, Longitude: -73.7562 }),
+    ny511PackRow({ ID: 'other-host', Url: 'https://example.com/map/Cctv/9' }),
+    ny511PackRow({ ID: 'no-url', Url: '' }),
+    ny511PackRow({ ID: 'ok', Name: 'duplicate id' }),
+    null,
+  ]);
+
+  assert.deepEqual(cameras.map((c) => c.id), ['ny511-ok']);
+  const [camera] = cameras;
+  assert.equal(camera.provider, 'NYSDOT 511NY');
+  assert.equal(camera.sourceKind, 'ny511-open-data');
+  assert.equal(camera.feedType, 'image');
+  assert.equal(camera.url, 'https://511ny.org/map/Cctv/2003', 'the map page is the still');
+  assert.equal(camera.city, 'Brooklyn Queens Expressway (I-278)', 'county suffix stripped');
+  assert.equal(camera.cityId, 'nyc');
+  assert.equal(camera.groundElevationM, 15);
+});
+
+test('511NY pack statewide keeps upstate rows with the statewide prior', () => {
+  const cameras = normalizeNy511CatalogPayload([
+    ny511PackRow({ ID: 'albany', Latitude: 42.6526, Longitude: -73.7562, RoadwayName: '' }),
+  ], { statewide: true });
+
+  assert.equal(cameras.length, 1);
+  assert.equal(cameras[0].cityId, 'ny');
+  assert.equal(cameras[0].city, 'New York State');
+  assert.equal(cameras[0].groundElevationM, 120);
+});
+
+test('511NY pack takes a cardinal DirectionOfTravel as a high-confidence heading', () => {
+  const [west, unknown, both] = normalizeNy511CatalogPayload([
+    ny511PackRow({ ID: 'w', DirectionOfTravel: 'Westbound' }),
+    ny511PackRow({ ID: 'u', DirectionOfTravel: 'Unknown' }),
+    ny511PackRow({ ID: 'b', DirectionOfTravel: 'Both Directions' }),
+  ]);
+
+  assert.equal(west.headingDeg, 270);
+  assert.equal(west.headingConfidence, 'high');
+  assert.equal(west.headingProvenance, '511ny');
+  assert.equal(west.mountHeightM, 12);
+  for (const camera of [unknown, both]) {
+    assert.equal(camera.headingConfidence, 'low');
+    assert.equal(camera.headingProvenance, 'fallback');
+    assert.ok(Number.isFinite(camera.headingDeg));
+  }
+});
+
+test('511NY pack drops rows on the same mount as an NYC DOT camera', () => {
+  const nycdot = [{ lat: 40.70537, lon: -73.95441 }];
+  const cameras = normalizeNy511CatalogPayload([
+    ny511PackRow({ ID: 'shared' }), // 0 m from the city camera
+    ny511PackRow({ ID: 'across', Latitude: 40.70580 }), // ~48 m: opposite carriageway, kept
+  ], { excludeNear: nycdot });
+
+  assert.deepEqual(cameras.map((c) => c.id), ['ny511-across']);
+  assert.equal(normalizeNy511CatalogPayload([ny511PackRow({ ID: 'shared' })], { excludeNear: [] }).length, 1);
+  assert.equal(normalizeNy511CatalogPayload([ny511PackRow({ ID: 'shared' })], { excludeNear: null }).length, 1);
+});
+
+test('511NY pack ids are sanitized and stable', () => {
+  const build = () => normalizeNy511CatalogPayload([ny511PackRow({ ID: 'NYSDOT-01o3upkjrwu' })])[0];
+  assert.equal(build().id, 'ny511-nysdot-01o3upkjrwu');
+  assert.equal(build().headingDeg, build().headingDeg);
+  assert.deepEqual(normalizeNy511CatalogPayload(null), []);
+  assert.deepEqual(normalizeNy511CatalogPayload({}), []);
+  assert.deepEqual(normalizeNy511CatalogPayload([{}]), []);
+});

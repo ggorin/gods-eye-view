@@ -1850,7 +1850,7 @@ its criteria cannot be silently ignored.
 | Satellites | CelesTrak | `src/data/satellites.js` | `/api/celestrak` | 120s |
 | Space Missions (30d) | Launch Library 2 + CelesTrak | `src/data/rocketLaunches.js` | `/api/launches` + `/api/celestrak/active` | 5 min |
 | Traffic | OSM Overpass (+ optional TomTom live flow) | `src/data/traffic.js` | `/api/overpass` + `/api/tomtom` | viewport-driven |
-| CCTV | Austin + Caltrans (CA) + TfL London + NYC DOT Open Data + Street View fallback | `src/data/cctv.js` | `/api/cctv` | 10s (active) |
+| CCTV | Austin + Caltrans (CA) + TfL London + NYC DOT + 511NY (NYSDOT) Open Data + Street View fallback | `src/data/cctv.js` | `/api/cctv` | 10s (active) |
 | Radio | Radio Browser (public-domain station directory) | `src/data/radio.js` | `/api/radio/stations`, `/api/radio/click/:uuid` | 45 min directory refresh |
 | Bikeshare 🚲 | GBFS (Lyft + BCycle) | `src/data/bikeshare.js` | `/api/gbfs` | 60s |
 | Datacenters ▣ | OSM extract (bundled) | `src/data/localLayers.js` | — | static |
@@ -2215,8 +2215,8 @@ silently demoting every later lookup for the session.
   "BQE EB @ Atlantic Ave"); bare cardinals in street names ("West St", "Northern Blvd")
   are refused. Ground elevation is a per-borough prior (12–30 m) because the payload
   carries none. The pack appends at the tail of the merge, so the three original packs
-  keep their exact coverage; `CCTV_MAX_SOURCES` default rose 900 → 1,100 so all four
-  default packs seat whole (250 + 300 + 250 + 300), ceiling unchanged at 1,200. Terms:
+  keep their exact coverage; `CCTV_MAX_SOURCES` default rose 900 → 1,400 so all five
+  default packs seat whole (250 + 300 + 250 + 300 + 300), ceiling raised 1,200 → 1,500. Terms:
   see DATA_SOURCES.md — NYC DOT's developer agreement has not been confirmed to cover the
   public map API, which is why the pack has its own kill switch.
   **Pose enrichment (2026-09-12):** facing resolution is name token → 511NY → id-hash.
@@ -2236,6 +2236,18 @@ silently demoting every later lookup for the session.
   additively; nothing on the client reads them yet. A PTZ pose is trustworthy only until an
   operator moves the dome — which is the argument against ever shipping curated poses for
   those units.
+  **511NY pack (2026-09-12):** the 511NY list fetched for the join is also a fifth pack
+  (`buildNy511Sources`; `CCTV_NY511_ENABLED=0` disables, cap 300 via
+  `CCTV_NY511_MAX_SOURCES`, `CCTV_NY511_STATEWIDE=1` widens from the NYC box to the state
+  with upstate anchors). The feed has no still URL, only an HLS `VideoUrl` — the frame is the
+  row's 511NY map-page `Url`, which answers a 512x288 PNG on a 60 s cache (official-origin
+  pin on `511ny.org/map/Cctv/`); the stream is never touched. Enabled + unblocked rows only;
+  rows within 30 m of an NYC DOT camera are dropped as duplicate mounts. Facing from
+  `DirectionOfTravel` at high confidence (`headingProvenance:'511ny'`). All upstream fetches
+  (Austin, Caltrans, TfL, NYC DOT catalog, 511NY rows) now run in ONE parallel batch and the
+  NYC DOT / 511NY packs are built from the payloads afterwards, so the 511NY list is fetched
+  once per refresh. Merge order appends 511NY after NYC DOT; a lowered `CCTV_MAX_SOURCES`
+  trims 511NY first.
 - **CCTV v3 UX — viewshed + calibration gizmo** (built 2026-07-05 and field
   validated 2026-07-21): the COVERAGE toggle is a
   tri-state cycle `OFF → ON → VIEWSHED`; viewshed mode renders each visible camera's frustum

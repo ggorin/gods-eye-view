@@ -34,6 +34,8 @@ const PROVIDER_STATIC_REFRESH_MS = Object.freeze({
   // NYC DOT republishes stills every few seconds; 3 min matches the other
   // city packs so ambient cards don't spend the frame budget on one city.
   'nyc dot': 3 * 60 * 1000,
+  // 511NY stills are cached 60 s upstream; 3 min like the other highway packs.
+  'nysdot 511ny': 3 * 60 * 1000,
 });
 
 /**

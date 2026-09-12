@@ -1493,9 +1493,9 @@ const DEFAULT_AUSTIN_ROWS_URL = 'https://data.austintexas.gov/api/views/b4k4-adk
 /** Default cap on Austin cameras after distance-based prioritization. */
 const DEFAULT_AUSTIN_MAX_SOURCES = 250;
 /** Global cap on total CCTV sources served by the proxy. */
-/** Seats the four default packs whole (250 Austin + 300 Caltrans + 250 TfL +
- * 300 NYC DOT); the hard ceiling below stays 1,200. */
-const DEFAULT_CCTV_MAX_SOURCES = 1100;
+/** Seats the five default packs whole (250 Austin + 300 Caltrans + 250 TfL +
+ * 300 NYC DOT + 300 511NY); the hard ceiling below is 1,500. */
+const DEFAULT_CCTV_MAX_SOURCES = 1400;
 /** Reference point for Austin camera prioritization (Congress & 6th). */
 const AUSTIN_DOWNTOWN = { lat: 30.2672, lon: -97.7431 };
 /** Caltrans CCTV: one JSON feed per district, identical schema statewide. */
@@ -1559,6 +1559,24 @@ const NY511_CAMERAS_URL = 'https://511ny.org/api/getcameras?format=json';
 /** Join radius, metres. Measured matches sit 0–24 m apart; 30 m keeps a state
  * camera on the opposite carriageway (typically 40 m+) from lending its facing. */
 const NYCDOT_511NY_MATCH_M = 30;
+/** 511NY pack: the same list as a camera source of its own. The feed publishes
+ * no still URL, only an HLS stream — but each row's `Url` (its 511NY map page)
+ * answers with a 512x288 PNG snapshot on a 60 s cache, so the pack is
+ * stills-first like every other pack and never touches the stream. */
+const NY511_STILL_PREFIX = 'https://511ny.org/map/Cctv/';
+const DEFAULT_NY511_MAX_SOURCES = 300;
+/** Statewide anchors, used only with CCTV_NY511_STATEWIDE=1 (the default region
+ * is the NYC box, ranked by the borough anchors). */
+const NY511_STATEWIDE_ANCHORS = [
+  { lat: 41.034, lon: -73.7629 }, // White Plains
+  { lat: 40.8257, lon: -73.2026 }, // Hauppauge, Long Island
+  { lat: 42.6526, lon: -73.7562 }, // Albany
+  { lat: 43.0481, lon: -76.1474 }, // Syracuse
+  { lat: 43.1566, lon: -77.6088 }, // Rochester
+  { lat: 42.8864, lon: -78.8784 }, // Buffalo
+];
+const NY511_NYC_ELEVATION_M = 15;
+const NY511_STATEWIDE_ELEVATION_M = 120;
 /** Camera make/model per NYC DOT camera, read from frame EXIF by
  * scripts/nycdot-camera-models.mjs. A slow-changing prior; absent file = no
  * model data, never an error. */
@@ -2210,21 +2228,65 @@ async function loadTflSourcesFromOpenData() {
  * @returns {{cells: Map<string, Array<{lat:number,lon:number,headingDeg:number,id:string}>>, size: number}}
  */
 export function build511nyFacingIndex(rows) {
-  const cells = new Map();
-  let size = 0;
-  if (!Array.isArray(rows)) return { cells, size };
+  if (!Array.isArray(rows)) return buildPointIndex([]);
+  const points = [];
   for (const row of rows) {
     const lat = typeof row?.Latitude === 'number' ? row.Latitude : NaN;
     const lon = typeof row?.Longitude === 'number' ? row.Longitude : NaN;
     if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue;
     const headingDeg = directionToHeading(String(row?.DirectionOfTravel || ''), false);
     if (!Number.isFinite(headingDeg)) continue;
+    points.push({ lat, lon, headingDeg, id: String(row?.ID || '') });
+  }
+  return buildPointIndex(points);
+}
+
+/**
+ * Coarse 0.01° grid over points with finite lat/lon, for radius lookups
+ * without an O(n²) join. Entries keep whatever extra fields they carried.
+ *
+ * @param {Array<{lat:number,lon:number}>} points
+ * @returns {{cells: Map<string, Array<object>>, size: number}}
+ */
+export function buildPointIndex(points) {
+  const cells = new Map();
+  let size = 0;
+  for (const point of Array.isArray(points) ? points : []) {
+    const lat = Number(point?.lat);
+    const lon = Number(point?.lon);
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue;
     const key = `${Math.round(lat * 100)}:${Math.round(lon * 100)}`;
     if (!cells.has(key)) cells.set(key, []);
-    cells.get(key).push({ lat, lon, headingDeg, id: String(row?.ID || '') });
+    cells.get(key).push(point);
     size++;
   }
   return { cells, size };
+}
+
+/**
+ * Nearest indexed point within `maxDistanceM`, or null.
+ * @param {{cells: Map}|null} index
+ * @param {number} lat
+ * @param {number} lon
+ * @param {number} maxDistanceM
+ * @returns {{point: object, distanceM: number}|null}
+ */
+export function nearestIndexedPoint(index, lat, lon, maxDistanceM) {
+  if (!index?.cells?.size || !Number.isFinite(lat) || !Number.isFinite(lon)) return null;
+  const cLat = Math.round(lat * 100);
+  const cLon = Math.round(lon * 100);
+  let best = null;
+  for (let dLat = -1; dLat <= 1; dLat++) {
+    for (let dLon = -1; dLon <= 1; dLon++) {
+      const bucket = index.cells.get(`${cLat + dLat}:${cLon + dLon}`);
+      if (!bucket) continue;
+      for (const point of bucket) {
+        const distanceM = haversineKm(lat, lon, Number(point.lat), Number(point.lon)) * 1000;
+        if (distanceM <= maxDistanceM && (!best || distanceM < best.distanceM)) best = { point, distanceM };
+      }
+    }
+  }
+  return best;
 }
 
 /**
@@ -2237,23 +2299,8 @@ export function build511nyFacingIndex(rows) {
  * @returns {{headingDeg:number, id:string, distanceM:number}|null}
  */
 export function nearest511nyFacing(index, lat, lon, maxDistanceM = NYCDOT_511NY_MATCH_M) {
-  if (!index?.cells?.size) return null;
-  const cLat = Math.round(lat * 100);
-  const cLon = Math.round(lon * 100);
-  let best = null;
-  for (let dLat = -1; dLat <= 1; dLat++) {
-    for (let dLon = -1; dLon <= 1; dLon++) {
-      const bucket = index.cells.get(`${cLat + dLat}:${cLon + dLon}`);
-      if (!bucket) continue;
-      for (const entry of bucket) {
-        const distanceM = haversineKm(lat, lon, entry.lat, entry.lon) * 1000;
-        if (distanceM <= maxDistanceM && (!best || distanceM < best.distanceM)) {
-          best = { headingDeg: entry.headingDeg, id: entry.id, distanceM };
-        }
-      }
-    }
-  }
-  return best;
+  const hit = nearestIndexedPoint(index, lat, lon, maxDistanceM);
+  return hit ? { headingDeg: hit.point.headingDeg, id: hit.point.id, distanceM: hit.distanceM } : null;
 }
 
 /**
@@ -2378,13 +2425,13 @@ export function normalizeNycdotCatalogPayload(payload, { facingIndex = null, mod
 }
 
 /**
- * Fetch the 511NY camera list and index the rows that publish a facing.
- * Self-catching: any failure returns null and the NYC DOT pack loads without
- * 511NY headings (name tokens and the id-hash fallback still apply).
+ * Fetch the 511NY camera list once per refresh; both the NYC DOT facing join
+ * and the 511NY pack read it. Self-catching: any failure returns null and
+ * NYC DOT loads without 511NY headings, the 511NY pack loads empty.
  *
- * @returns {Promise<ReturnType<typeof build511nyFacingIndex>|null>}
+ * @returns {Promise<Array<object>|null>}
  */
-async function load511nyFacingIndex() {
+async function fetch511nyRows() {
   try {
     const key = String(process.env.NY511_API_KEY || '').trim();
     const url = key ? `${NY511_CAMERAS_URL}&key=${encodeURIComponent(key)}` : NY511_CAMERAS_URL;
@@ -2396,7 +2443,8 @@ async function load511nyFacingIndex() {
       console.warn('[CCTV] 511NY camera download failed:', resp.status);
       return null;
     }
-    return build511nyFacingIndex(await resp.json());
+    const rows = await resp.json();
+    return Array.isArray(rows) ? rows : null;
   } catch (error) {
     console.warn('[CCTV] 511NY camera download error:', error?.message || error);
     return null;
@@ -2404,35 +2452,144 @@ async function load511nyFacingIndex() {
 }
 
 /**
- * Fetch NYC DOT traffic cameras (New York City, all five boroughs), keyless.
+ * Normalize the 511NY camera list into camera source objects (the 511NY pack).
+ *
+ * Keeps enabled, unblocked rows with finite coordinates whose map-page `Url`
+ * sits on the official 511NY origin — that page IS the still (a PNG snapshot,
+ * 60 s cache). Region defaults to the NYC box; `statewide` keeps everything.
+ * Rows within `excludeRadiusM` of an `excludeNear` point (the NYC DOT pack)
+ * are dropped: ~280 city cameras are the same physical mounts, and the city
+ * still already carries the 511NY facing, so a second icon would be a duplicate.
+ *
+ * Facing comes from the published cardinal `DirectionOfTravel` ("Northbound"),
+ * a dedicated field of the same kind Caltrans publishes — high confidence.
+ *
+ * @param {unknown} rows - Parsed 511NY getcameras response.
+ * @param {object} [options]
+ * @param {boolean} [options.statewide=false]
+ * @param {Array<{lat:number,lon:number}>|null} [options.excludeNear=null]
+ * @param {number} [options.excludeRadiusM=NYCDOT_511NY_MATCH_M]
+ * @returns {Array<object>}
+ */
+export function normalizeNy511CatalogPayload(rows, { statewide = false, excludeNear = null, excludeRadiusM = NYCDOT_511NY_MATCH_M } = {}) {
+  if (!Array.isArray(rows)) return [];
+  const exclusion = excludeNear ? buildPointIndex(excludeNear) : null;
+  const cameras = [];
+  const seen = new Set();
+  for (const row of rows) {
+    if (!row || typeof row !== 'object') continue;
+    if (row.Disabled === true || row.Blocked === true) continue;
+    const lat = typeof row.Latitude === 'number' ? row.Latitude : NaN;
+    const lon = typeof row.Longitude === 'number' ? row.Longitude : NaN;
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue;
+    if (lat === 0 && lon === 0) continue;
+    const inNyc = lat >= NYCDOT_BOUNDS.minLat && lat <= NYCDOT_BOUNDS.maxLat
+      && lon >= NYCDOT_BOUNDS.minLon && lon <= NYCDOT_BOUNDS.maxLon;
+    if (!statewide && !inNyc) continue;
+    const stillUrl = String(row.Url || '');
+    if (!stillUrl.startsWith(NY511_STILL_PREFIX)) continue; // official-origin pin
+    const rawId = String(row.ID || '').trim();
+    if (!rawId || seen.has(rawId)) continue;
+    if (exclusion && nearestIndexedPoint(exclusion, lat, lon, excludeRadiusM)) continue;
+    seen.add(rawId);
+
+    const cameraId = `ny511-${rawId.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`;
+    const heading = directionToHeading(String(row.DirectionOfTravel || ''), false);
+    const hasHeading = Number.isFinite(heading);
+    const roadway = String(row.RoadwayName || '').replace(/\s*\[[^\]]*\]\s*$/, '').trim();
+    cameras.push({
+      id: cameraId,
+      name: String(row.Name || rawId).trim(),
+      city: roadway || (inNyc ? 'New York City' : 'New York State'),
+      cityId: inNyc ? 'nyc' : 'ny',
+      provider: 'NYSDOT 511NY',
+      lat,
+      lon,
+      headingDeg: hasHeading ? heading : fallbackHeadingFromId(cameraId),
+      headingConfidence: hasHeading ? 'high' : 'low',
+      headingProvenance: hasHeading ? '511ny' : 'fallback',
+      pitchDeg: hasHeading ? -24 : -18,
+      fovDeg: hasHeading ? 56 : 44,
+      rangeM: hasHeading ? 210 : 145,
+      // NYSDOT units sit on highway gantries and tall poles.
+      mountHeightM: hasHeading ? 12 : 10,
+      groundElevationM: inNyc ? NY511_NYC_ELEVATION_M : NY511_STATEWIDE_ELEVATION_M,
+      feedType: 'image',
+      url: stillUrl,
+      snapshotUrl: stillUrl,
+      sourceKind: 'ny511-open-data',
+      license: 'powered by 511NY (NYSDOT) — Developer\'s Access Agreement',
+    });
+  }
+  return cameras;
+}
+
+/**
+ * The 511NY pack from already-fetched rows. Never fetches on its own: the
+ * rows come from fetch511nyRows() in refreshCctvSources, shared with the
+ * NYC DOT facing join.
+ *
+ * @param {Array<object>|null} rows
+ * @param {{excludeNear?: Array<{lat:number,lon:number}>|null}} [options]
+ * @returns {Array<object>}
+ */
+function buildNy511Sources(rows, { excludeNear = null } = {}) {
+  if (!Array.isArray(rows)) return [];
+  const statewide = String(process.env.CCTV_NY511_STATEWIDE || '').trim() === '1';
+  const cameras = normalizeNy511CatalogPayload(rows, { statewide, excludeNear });
+  const maxRaw = Number(process.env.CCTV_NY511_MAX_SOURCES || DEFAULT_NY511_MAX_SOURCES);
+  const maxCount = Number.isFinite(maxRaw)
+    ? Math.max(8, Math.min(600, Math.floor(maxRaw)))
+    : DEFAULT_NY511_MAX_SOURCES;
+  const anchors = statewide ? [...NYCDOT_ANCHORS, ...NY511_STATEWIDE_ANCHORS] : NYCDOT_ANCHORS;
+  const prioritized = prioritizeSources(cameras, maxCount, anchors);
+  const facings = cameras.filter((camera) => camera.headingConfidence === 'high').length;
+  console.log(`[CCTV] Loaded 511NY camera sources: ${cameras.length} enabled${statewide ? ' statewide' : ' in NYC'} (${facings} with a published facing; using nearest ${prioritized.length})`);
+  return prioritized;
+}
+
+/**
+ * Fetch the NYC DOT camera catalog (New York City, all five boroughs), keyless.
  *
  * One catalog call to the public webcams map's own API; frames are plain
  * JPEG stills on the same origin (352x240, republished every few seconds).
- * Capped by CCTV_NYCDOT_MAX_SOURCES and prioritized nearest-to-any-borough-core
- * so a cap spreads across the city instead of stacking Midtown.
+ * The pack is built by buildNycdotSources: capped by CCTV_NYCDOT_MAX_SOURCES
+ * and prioritized nearest-to-any-borough-core so a cap spreads across the
+ * city instead of stacking Midtown. Self-catching → null.
  *
- * @returns {Promise<Array<object>>} Normalized camera source objects.
+ * @returns {Promise<unknown|null>} Parsed catalog, or null.
  */
-async function loadNycdotSourcesFromOpenData() {
+async function fetchNycdotCatalog() {
   try {
-    const ny511Enabled = String(process.env.CCTV_NYCDOT_511NY_ENABLED || '1').trim() !== '0';
-    const [catalogResult, ny511Result] = await Promise.allSettled([
-      fetch(NYCDOT_CAMERAS_URL, {
-        headers: { Accept: 'application/json' },
-        signal: AbortSignal.timeout(CCTV_SOURCE_FETCH_TIMEOUT_MS),
-      }).then(async (resp) => {
-        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-        return resp.json();
-      }),
-      ny511Enabled ? load511nyFacingIndex() : Promise.resolve(null),
-    ]);
-    if (catalogResult.status !== 'fulfilled') {
-      console.warn('[CCTV] NYC DOT camera download failed:', catalogResult.reason?.message || catalogResult.reason);
-      return [];
+    const resp = await fetch(NYCDOT_CAMERAS_URL, {
+      headers: { Accept: 'application/json' },
+      signal: AbortSignal.timeout(CCTV_SOURCE_FETCH_TIMEOUT_MS),
+    });
+    if (!resp.ok) {
+      console.warn('[CCTV] NYC DOT camera download failed:', resp.status);
+      return null;
     }
-    const facingIndex = ny511Result.status === 'fulfilled' ? ny511Result.value : null;
+    return await resp.json();
+  } catch (error) {
+    console.warn('[CCTV] NYC DOT camera download error:', error?.message || error);
+    return null;
+  }
+}
+
+/**
+ * The NYC DOT pack from an already-fetched catalog, with the 511NY facing join
+ * (when rows are supplied) and the bundled model registry.
+ *
+ * @param {unknown} payload - Parsed NYC DOT /api/cameras response, or null.
+ * @param {{ny511Rows?: Array<object>|null}} [options]
+ * @returns {Array<object>}
+ */
+function buildNycdotSources(payload, { ny511Rows = null } = {}) {
+  if (!Array.isArray(payload)) return [];
+  try {
+    const facingIndex = ny511Rows ? build511nyFacingIndex(ny511Rows) : null;
     const models = loadNycdotModelRegistry();
-    const cameras = normalizeNycdotCatalogPayload(catalogResult.value, { facingIndex, models });
+    const cameras = normalizeNycdotCatalogPayload(payload, { facingIndex, models });
     const facings = cameras.filter((camera) => camera.headingProvenance === '511ny').length;
     const modelled = cameras.filter((camera) => camera.cameraModel).length;
     console.log(`[CCTV] NYC DOT enrichment: ${facings} facings from 511NY (${facingIndex?.size ?? 0} indexed), ${modelled} cameras with a known model`);
@@ -2445,7 +2602,7 @@ async function loadNycdotSourcesFromOpenData() {
     console.log(`[CCTV] Loaded NYC DOT camera sources: ${cameras.length} online (using nearest ${prioritized.length})`);
     return prioritized;
   } catch (error) {
-    console.warn('[CCTV] NYC DOT camera download error:', error?.message || error);
+    console.warn('[CCTV] NYC DOT catalog normalize error:', error?.message || error);
     return [];
   }
 }
@@ -2526,38 +2683,51 @@ async function refreshCctvSources() {
 
   const forceAustin = String(process.env.CCTV_FORCE_AUSTIN || '').trim() === '1';
   const preferAustin = String(process.env.CCTV_PREFER_AUSTIN || '1').trim() !== '0';
-  // Live open-data packs (Austin + Caltrans + TfL + NYC DOT) load unless a
-  // file/env pack is configured and live packs aren't forced — same gate that
-  // governed the Austin-only fetch, now governing all four. Each pack fails
-  // independently.
+  // Live open-data packs (Austin + Caltrans + TfL + NYC DOT + 511NY) load
+  // unless a file/env pack is configured and live packs aren't forced — same
+  // gate that governed the Austin-only fetch, now governing all five. Each
+  // pack fails independently.
   const needsLiveSources = forceAustin || ((fromFile.length + fromEnv.length) === 0 && preferAustin);
   const tflEnabled = String(process.env.CCTV_TFL_ENABLED || '1').trim() !== '0';
   const nycdotEnabled = String(process.env.CCTV_NYCDOT_ENABLED || '1').trim() !== '0';
+  const nycdotJoin511 = String(process.env.CCTV_NYCDOT_511NY_ENABLED || '1').trim() !== '0';
+  const ny511Enabled = String(process.env.CCTV_NY511_ENABLED || '1').trim() !== '0';
+  const wants511Rows = (nycdotEnabled && nycdotJoin511) || ny511Enabled;
 
   let fromAustin = [];
   let fromCaltrans = [];
   let fromTfl = [];
   let fromNycdot = [];
+  let fromNy511 = [];
   if (needsLiveSources) {
-    const [austinResult, caltransResult, tflResult, nycdotResult] = await Promise.allSettled([
+    // Every upstream fetch runs in this one parallel batch; the NYC DOT and
+    // 511NY packs are then BUILT from the fetched payloads, because they share
+    // the 511NY rows (facing join) and the 511NY pack dedupes against NYC DOT.
+    const [austinResult, caltransResult, tflResult, nycdotCatalog, ny511RowsResult] = await Promise.allSettled([
       loadAustinSourcesFromOpenData(),
       loadCaltransSourcesFromOpenData(),
       tflEnabled ? loadTflSourcesFromOpenData() : Promise.resolve([]),
-      nycdotEnabled ? loadNycdotSourcesFromOpenData() : Promise.resolve([]),
+      nycdotEnabled ? fetchNycdotCatalog() : Promise.resolve(null),
+      wants511Rows ? fetch511nyRows() : Promise.resolve(null),
     ]);
     fromAustin = austinResult.status === 'fulfilled' ? austinResult.value : [];
     fromCaltrans = caltransResult.status === 'fulfilled' ? caltransResult.value : [];
     fromTfl = tflResult.status === 'fulfilled' ? tflResult.value : [];
-    fromNycdot = nycdotResult.status === 'fulfilled' ? nycdotResult.value : [];
+    const ny511Rows = ny511RowsResult.status === 'fulfilled' ? ny511RowsResult.value : null;
+    fromNycdot = nycdotEnabled && nycdotCatalog.status === 'fulfilled'
+      ? buildNycdotSources(nycdotCatalog.value, { ny511Rows: nycdotJoin511 ? ny511Rows : null })
+      : [];
+    fromNy511 = ny511Enabled ? buildNy511Sources(ny511Rows, { excludeNear: fromNycdot }) : [];
   }
   // Live sources first so file/env overrides win on duplicate IDs (Map last-write).
   //
   // Pack order also decides who loses to the global CCTV_MAX_SOURCES cap
   // below, because that cap is a plain slice. New packs append at the tail so
   // the three original packs keep exactly the coverage they had; at default
-  // per-pack caps (250 + 300 + 250 + 300 = 1,100) the global default of 1,100
-  // seats every pack whole, and lowering CCTV_MAX_SOURCES trims NYC first.
-  const merged = [...fromAustin, ...fromCaltrans, ...fromTfl, ...fromNycdot, ...fromFile, ...fromEnv];
+  // per-pack caps (250 + 300 + 250 + 300 + 300 = 1,400) the global default of
+  // 1,400 seats every pack whole, and lowering CCTV_MAX_SOURCES trims 511NY
+  // first, then NYC DOT.
+  const merged = [...fromAustin, ...fromCaltrans, ...fromTfl, ...fromNycdot, ...fromNy511, ...fromFile, ...fromEnv];
 
   // Deduplicate by camera ID (last-write wins because of Map.set)
   const byId = new Map();
@@ -2570,7 +2740,7 @@ async function refreshCctvSources() {
 
   const mergedSources = Array.from(byId.values());
   const maxRaw = Number(process.env.CCTV_MAX_SOURCES || DEFAULT_CCTV_MAX_SOURCES);
-  const maxCount = Number.isFinite(maxRaw) ? Math.max(8, Math.min(1200, Math.floor(maxRaw))) : DEFAULT_CCTV_MAX_SOURCES;
+  const maxCount = Number.isFinite(maxRaw) ? Math.max(8, Math.min(1500, Math.floor(maxRaw))) : DEFAULT_CCTV_MAX_SOURCES;
   if (mergedSources.length > maxCount) {
     console.warn(`[CCTV] source catalog ${mergedSources.length} exceeds cap ${maxCount}; keeping the first ${maxCount} (raise CCTV_MAX_SOURCES or lower a per-pack cap to change which).`);
   }

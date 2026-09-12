@@ -136,7 +136,7 @@ export const DATA_CREDITS = [
   {
     key: 'ny511-cctv',
     html:
-      'CCTV camera facings (New York City): ' +
+      'CCTV cameras &amp; frames (New York State) and NYC DOT camera facings: ' +
       '<a href="https://511ny.org/" target="_blank" rel="noopener">powered by 511NY</a> (NYSDOT)',
   },
   {
