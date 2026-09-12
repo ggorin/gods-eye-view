@@ -134,6 +134,12 @@ export const DATA_CREDITS = [
       '<a href="https://webcams.nyctmc.org/" target="_blank" rel="noopener">webcams.nyctmc.org</a>',
   },
   {
+    key: 'ny511-cctv',
+    html:
+      'CCTV camera facings (New York City): ' +
+      '<a href="https://511ny.org/" target="_blank" rel="noopener">powered by 511NY</a> (NYSDOT)',
+  },
+  {
     key: 'gbfs',
     html: 'Bikeshare availability: GBFS operator feeds (e.g. Austin BCycle)',
   },

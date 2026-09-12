@@ -1550,6 +1550,33 @@ const NYCDOT_DEFAULT_ELEVATION_M = 15;
  * Albany), not New York City cameras. Generous: covers the five boroughs plus
  * the bridge and tunnel approaches on the NJ and Westchester sides. */
 const NYCDOT_BOUNDS = { minLat: 40.45, maxLat: 41.0, minLon: -74.3, maxLon: -73.65 };
+/** 511NY (NYSDOT) camera list. Its rows carry a DirectionOfTravel the NYC DOT
+ * catalog lacks, and ~280 of the city's cameras are the same physical units
+ * (shared city/state mounts), so a tight coordinate join recovers a facing for
+ * them. Keyless today; NY511_API_KEY is appended when set because the
+ * developer docs say a key is required. */
+const NY511_CAMERAS_URL = 'https://511ny.org/api/getcameras?format=json';
+/** Join radius, metres. Measured matches sit 0–24 m apart; 30 m keeps a state
+ * camera on the opposite carriageway (typically 40 m+) from lending its facing. */
+const NYCDOT_511NY_MATCH_M = 30;
+/** Camera make/model per NYC DOT camera, read from frame EXIF by
+ * scripts/nycdot-camera-models.mjs. A slow-changing prior; absent file = no
+ * model data, never an error. */
+const DEFAULT_NYCDOT_MODELS_FILE = 'config/nycdot_camera_models.json';
+/** Wide-end horizontal field of view by model, from the AXIS datasheets. Used
+ * as the FOV prior for a PTZ parked at wide angle — still a prior, because the
+ * zoom position is not published. */
+const NYCDOT_MODEL_FOV_DEG = Object.freeze({
+  'AXIS Q6055-E': 62.8,
+  'AXIS Q6075-E': 65.1,
+  'AXIS P5655-E': 58.3,
+  'AXIS Q6318-LE': 58.5,
+});
+/** AXIS Q6xxx / P55xx / P56xx / M55xx families are pan-tilt-zoom domes (the
+ * whole 2026-09 fleet with EXIF: Q6055-E, Q6075-E, P5655-E, M5525-E, P5514-E,
+ * Q6215-LE, P5624-E, Q6318-LE): an operator can move them, so a saved pose is
+ * trustworthy only until someone does. */
+const NYCDOT_PTZ_MODEL_RE = /^AXIS (Q6\d{3}|P5[56]\d{2}|M55\d{2})\b/;
 /** Camera CATALOGS change rarely; 15 min keeps multi-megabyte upstream list refetches (Austin rows.json + 4 Caltrans districts + TfL + NYC DOT) infrequent. Frames are fetched per-request and are unaffected. */
 const CCTV_SOURCE_CACHE_MS = 15 * 60 * 1000;
 /** Per-provider catalog-fetch timeout. Bounds the worst-case refresh so one
@@ -2172,7 +2199,94 @@ async function loadTflSourcesFromOpenData() {
  * @param {unknown} payload - Parsed /api/cameras response.
  * @returns {Array<object>} Normalized camera source objects.
  */
-export function normalizeNycdotCatalogPayload(payload) {
+/**
+ * Build a coarse spatial index of 511NY cameras that publish a cardinal
+ * facing. Rows without finite coordinates or with "Unknown"/"Both Directions"/
+ * "Inbound" are left out — only Northbound/Eastbound/Southbound/Westbound map
+ * to a heading. Disabled rows are kept: the mount's facing does not change
+ * because its feed is off.
+ *
+ * @param {unknown} rows - Parsed 511NY getcameras response.
+ * @returns {{cells: Map<string, Array<{lat:number,lon:number,headingDeg:number,id:string}>>, size: number}}
+ */
+export function build511nyFacingIndex(rows) {
+  const cells = new Map();
+  let size = 0;
+  if (!Array.isArray(rows)) return { cells, size };
+  for (const row of rows) {
+    const lat = typeof row?.Latitude === 'number' ? row.Latitude : NaN;
+    const lon = typeof row?.Longitude === 'number' ? row.Longitude : NaN;
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue;
+    const headingDeg = directionToHeading(String(row?.DirectionOfTravel || ''), false);
+    if (!Number.isFinite(headingDeg)) continue;
+    const key = `${Math.round(lat * 100)}:${Math.round(lon * 100)}`;
+    if (!cells.has(key)) cells.set(key, []);
+    cells.get(key).push({ lat, lon, headingDeg, id: String(row?.ID || '') });
+    size++;
+  }
+  return { cells, size };
+}
+
+/**
+ * Nearest 511NY facing within `maxDistanceM` of a point, or null.
+ *
+ * @param {{cells: Map}|null} index - From build511nyFacingIndex.
+ * @param {number} lat
+ * @param {number} lon
+ * @param {number} [maxDistanceM=NYCDOT_511NY_MATCH_M]
+ * @returns {{headingDeg:number, id:string, distanceM:number}|null}
+ */
+export function nearest511nyFacing(index, lat, lon, maxDistanceM = NYCDOT_511NY_MATCH_M) {
+  if (!index?.cells?.size) return null;
+  const cLat = Math.round(lat * 100);
+  const cLon = Math.round(lon * 100);
+  let best = null;
+  for (let dLat = -1; dLat <= 1; dLat++) {
+    for (let dLon = -1; dLon <= 1; dLon++) {
+      const bucket = index.cells.get(`${cLat + dLat}:${cLon + dLon}`);
+      if (!bucket) continue;
+      for (const entry of bucket) {
+        const distanceM = haversineKm(lat, lon, entry.lat, entry.lon) * 1000;
+        if (distanceM <= maxDistanceM && (!best || distanceM < best.distanceM)) {
+          best = { headingDeg: entry.headingDeg, id: entry.id, distanceM };
+        }
+      }
+    }
+  }
+  return best;
+}
+
+/**
+ * Read the bundled NYC DOT camera-model registry. Missing or malformed file
+ * → empty map; the pack must never depend on it.
+ *
+ * @param {string} [filePath] - Overridable via CCTV_NYCDOT_MODELS_FILE.
+ * @returns {Record<string, {make:string|null, model:string|null}>}
+ */
+export function loadNycdotModelRegistry(filePath = process.env.CCTV_NYCDOT_MODELS_FILE || DEFAULT_NYCDOT_MODELS_FILE) {
+  try {
+    const resolved = path.isAbsolute(String(filePath)) ? String(filePath) : path.resolve(__dirname, String(filePath));
+    const raw = fs.readFileSync(resolved, 'utf8');
+    const parsed = JSON.parse(raw);
+    const cameras = parsed?.cameras;
+    return cameras && typeof cameras === 'object' && !Array.isArray(cameras) ? cameras : {};
+  } catch {
+    return {};
+  }
+}
+
+/**
+ * Model label ("AXIS Q6055-E") for a registry entry, or null.
+ * @param {{make?:string|null, model?:string|null}|undefined} entry
+ * @returns {string|null}
+ */
+function nycdotModelLabel(entry) {
+  if (!entry || typeof entry !== 'object') return null;
+  const label = [entry.make, entry.model].filter((part) => typeof part === 'string' && part.trim()).map((part) => part.trim()).join(' ');
+  return label || null;
+}
+
+export function normalizeNycdotCatalogPayload(payload, { facingIndex = null, models = {} } = {}) {
   if (!Array.isArray(payload)) return [];
   const cameras = [];
   const seen = new Set();
@@ -2207,8 +2321,27 @@ export function normalizeNycdotCatalogPayload(payload) {
     // NYC roadway travel tokens are never intercardinal. About 1% of rows
     // carry a token; the rest take the id-hash fallback at low confidence,
     // same as headingless Austin/TfL cameras.
-    const heading = directionToHeading(name, false);
-    const hasHeading = Number.isFinite(heading) && heading % 90 === 0;
+    const nameHeading = directionToHeading(name, false);
+    // Facing resolution order: explicit token in the name, then a 511NY camera
+    // on the same mount (shared city/state units, ~280 of them), then the
+    // id-hash fallback. Both real sources are cardinal facings of the kind
+    // Caltrans publishes, so they earn the same 'high' confidence.
+    let heading = NaN;
+    let headingProvenance = 'fallback';
+    if (Number.isFinite(nameHeading) && nameHeading % 90 === 0) {
+      heading = nameHeading;
+      headingProvenance = 'name';
+    } else {
+      const facing = nearest511nyFacing(facingIndex, lat, lon);
+      if (facing) {
+        heading = facing.headingDeg;
+        headingProvenance = '511ny';
+      }
+    }
+    const hasHeading = Number.isFinite(heading);
+    const cameraModel = nycdotModelLabel(models?.[rawId]);
+    const modelFov = cameraModel ? NYCDOT_MODEL_FOV_DEG[cameraModel] : undefined;
+    const ptz = cameraModel ? NYCDOT_PTZ_MODEL_RE.test(cameraModel) : false;
 
     cameras.push({
       id: cameraId,
@@ -2223,13 +2356,17 @@ export function normalizeNycdotCatalogPayload(payload) {
       // Same two fabricated pose personalities as Austin/Caltrans/TfL: RAW
       // PRIORS only — the client's one-shot ground snap and manual calibration
       // own the truth wherever a tileset exists.
+      headingProvenance,
       pitchDeg: hasHeading ? -24 : -18,
-      fovDeg: hasHeading ? 56 : 44,
+      // A known model gives the datasheet's wide-end FOV; otherwise the
+      // shared personality prior.
+      fovDeg: Number.isFinite(modelFov) ? modelFov : (hasHeading ? 56 : 44),
       rangeM: hasHeading ? 210 : 145,
       // NYC DOT cameras hang from signal mast arms and pole tops at
       // intersections; highway units sit higher on gantries.
       mountHeightM: hasHeading ? 10 : 8,
       groundElevationM: NYCDOT_BOROUGH_ELEVATION_M[borough.toLowerCase()] ?? NYCDOT_DEFAULT_ELEVATION_M,
+      ...(cameraModel ? { cameraModel, ptz } : {}),
       feedType: 'image',
       url: imageUrl,
       snapshotUrl: imageUrl,
@@ -2238,6 +2375,32 @@ export function normalizeNycdotCatalogPayload(payload) {
     });
   }
   return cameras;
+}
+
+/**
+ * Fetch the 511NY camera list and index the rows that publish a facing.
+ * Self-catching: any failure returns null and the NYC DOT pack loads without
+ * 511NY headings (name tokens and the id-hash fallback still apply).
+ *
+ * @returns {Promise<ReturnType<typeof build511nyFacingIndex>|null>}
+ */
+async function load511nyFacingIndex() {
+  try {
+    const key = String(process.env.NY511_API_KEY || '').trim();
+    const url = key ? `${NY511_CAMERAS_URL}&key=${encodeURIComponent(key)}` : NY511_CAMERAS_URL;
+    const resp = await fetch(url, {
+      headers: { Accept: 'application/json' },
+      signal: AbortSignal.timeout(CCTV_SOURCE_FETCH_TIMEOUT_MS),
+    });
+    if (!resp.ok) {
+      console.warn('[CCTV] 511NY camera download failed:', resp.status);
+      return null;
+    }
+    return build511nyFacingIndex(await resp.json());
+  } catch (error) {
+    console.warn('[CCTV] 511NY camera download error:', error?.message || error);
+    return null;
+  }
 }
 
 /**
@@ -2252,15 +2415,27 @@ export function normalizeNycdotCatalogPayload(payload) {
  */
 async function loadNycdotSourcesFromOpenData() {
   try {
-    const resp = await fetch(NYCDOT_CAMERAS_URL, {
-      headers: { Accept: 'application/json' },
-      signal: AbortSignal.timeout(CCTV_SOURCE_FETCH_TIMEOUT_MS),
-    });
-    if (!resp.ok) {
-      console.warn('[CCTV] NYC DOT camera download failed:', resp.status);
+    const ny511Enabled = String(process.env.CCTV_NYCDOT_511NY_ENABLED || '1').trim() !== '0';
+    const [catalogResult, ny511Result] = await Promise.allSettled([
+      fetch(NYCDOT_CAMERAS_URL, {
+        headers: { Accept: 'application/json' },
+        signal: AbortSignal.timeout(CCTV_SOURCE_FETCH_TIMEOUT_MS),
+      }).then(async (resp) => {
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        return resp.json();
+      }),
+      ny511Enabled ? load511nyFacingIndex() : Promise.resolve(null),
+    ]);
+    if (catalogResult.status !== 'fulfilled') {
+      console.warn('[CCTV] NYC DOT camera download failed:', catalogResult.reason?.message || catalogResult.reason);
       return [];
     }
-    const cameras = normalizeNycdotCatalogPayload(await resp.json());
+    const facingIndex = ny511Result.status === 'fulfilled' ? ny511Result.value : null;
+    const models = loadNycdotModelRegistry();
+    const cameras = normalizeNycdotCatalogPayload(catalogResult.value, { facingIndex, models });
+    const facings = cameras.filter((camera) => camera.headingProvenance === '511ny').length;
+    const modelled = cameras.filter((camera) => camera.cameraModel).length;
+    console.log(`[CCTV] NYC DOT enrichment: ${facings} facings from 511NY (${facingIndex?.size ?? 0} indexed), ${modelled} cameras with a known model`);
 
     const maxRaw = Number(process.env.CCTV_NYCDOT_MAX_SOURCES || DEFAULT_NYCDOT_MAX_SOURCES);
     const maxCount = Number.isFinite(maxRaw)
@@ -2308,6 +2483,11 @@ function normalizeSourceItem(item) {
     // badge can distinguish them from raw automated priors (e.g. Austin Open
     // Data, which never sets this field). Passed through as-is to the client.
     poseSource: item.poseSource === 'curated' ? 'curated' : undefined,
+    // Additive pack metadata (NYC DOT today): where a heading came from, the
+    // camera model read from frame EXIF, and whether that model is a
+    // pan-tilt-zoom unit an operator can move. Absent unless the pack set it.
+    ...(typeof item.headingProvenance === 'string' && item.headingProvenance ? { headingProvenance: item.headingProvenance } : {}),
+    ...(typeof item.cameraModel === 'string' && item.cameraModel ? { cameraModel: item.cameraModel, ptz: item.ptz === true } : {}),
   };
 }
 
@@ -2710,6 +2890,10 @@ function cctvProxy() {
                 feedType: normalizeFeedType(source.feedType),
                 sourceKind: source.sourceKind || (source.url ? 'configured' : 'fallback'),
                 poseSource: source.poseSource,
+                // Additive pack metadata; undefined (and so omitted) unless set.
+                headingProvenance: source.headingProvenance,
+                cameraModel: source.cameraModel,
+                ptz: source.ptz,
                 license: source.license,
               })),
             };

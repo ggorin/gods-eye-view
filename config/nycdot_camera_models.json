@@ -1,0 +1,1753 @@
+{
+  "generatedAt": "2026-09-12T09:31:38.267Z",
+  "source": "EXIF Make/Model tags read from webcams.nyctmc.org frames (metadata only; no frames are stored)",
+  "onlineCameras": 972,
+  "sampled": 972,
+  "withExif": 436,
+  "cameras": {
+    "00077ee3-2c13-4674-adbd-a51b3484b0be": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "01ffcaef-7c54-4f16-8668-bce6efbcfcb1": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "0360205b-183b-4dd3-a01f-e7f0deb5ff1f": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "03a8a2da-3ac2-45aa-a5ba-4ff7d1ecbd22": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "04589f46-2429-4e26-ad46-12a1198e9a9c": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "0472fa7a-acd7-4510-a9e7-61307d4057cd": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "04e09ed5-2d97-4e29-8438-b87748850dbb": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "04ffc69c-92a7-4c02-aa18-2b16e7ba81f2": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "0537e9a6-3e6f-480c-9c6e-bb3ad15356ae": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "05468f62-4092-4ff5-9bb6-0f70e56ff544": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "074b4e06-5090-47a5-b672-8b15780c9255": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "07b8616e-373e-4ec9-89cc-11cad7d59fcb": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "089d8066-4e5e-4549-9496-a5f4ffb56ef5": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "08ad39a9-300a-47f7-a708-2670843e6add": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "08c40d18-cacf-4139-aa64-ba8f8602af53": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "09d9335c-097e-47ef-af1d-122eb3206f7c": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "0ad90cca-a6b0-4968-abdd-ca81ae497848": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "0b4bd3d3-1741-49b3-87cc-d0960fa5f424": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "0bb2c096-0377-41f7-a451-56944aa8dae2": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "0bf496dc-36dd-4311-808e-84ab6acec605": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "0c9a2836-c408-48d3-85c7-1977c33d9133": {
+      "make": "AXIS",
+      "model": "Q6215-LE"
+    },
+    "0cef143f-b3d8-4066-84ee-6114fa6e76e0": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "0dc7c2b4-614d-46a3-9610-3ba09f3f1284": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "0e8def41-11e2-45de-a8f6-b746b805b7c5": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "0f12dfd0-76dc-4b34-80ee-b10ceeb84058": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "0f3b6031-fe36-43df-b2c7-6120e0580309": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "0f5e11ff-0ecc-4622-a32e-bb80a6b2c1c6": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "0ff11926-fcf0-4e3b-8aea-ffc0ea4f2228": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "0ff541bf-1be1-4bbf-88c5-3a570541e7d2": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "10a4be9a-8a1e-4b0c-84c3-b51c887b5e27": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "10c5f42d-6b32-4533-9c35-5715af4e4c76": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "11ab327a-184e-4630-b510-485d18e4a896": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "1389ca99-0d3f-4c27-bc45-b0aa238ea7d2": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "140a20d7-7ae7-409c-8c18-67d6b2ef7b2d": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "14767de3-0b6f-4708-b63a-230f5883d932": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "152e384f-7d80-4240-8995-bd75b78b582f": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "1546f761-039c-4b5c-af5e-75c83c9f603f": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "154a987b-7f71-4c09-a932-f256d085a34a": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "155b2bff-5dd2-4109-bd10-e098376c8476": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "156b0613-239a-4e77-aa0e-0a4becfc0b05": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "15fca74d-c3e9-42ee-8f32-5b708ef36477": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "167fabd4-70d7-4b74-add4-8cc077efe3f6": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "16de4b9a-83fe-4d11-91cd-d775cc1e559c": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "175cc1f1-0543-41c9-85fb-464ec29687de": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "180dcc87-d861-43e3-8898-9ad5ee1a26a9": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "18afd744-f7ce-41c2-98d1-93e87929f627": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "195870e2-8714-45c6-86ba-8ae079ef738c": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "1b874f5c-e1c6-481d-bb85-8d7d92c1793b": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "1ccb8d7c-43d4-450e-b40c-79527766db75": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "1dc7794b-62bb-4cb7-93ee-df87e5ac671d": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "1e60ade7-c760-48cf-acd9-d9d6cbfa9420": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "1e88b34b-2058-402e-9a3d-aca1c57696bf": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "1f0cfaad-4c0a-46e8-a5e3-f206d83a875d": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "1f81dbf0-4360-49fd-b768-b1a09d730eb1": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "2048e8ae-11df-4ff9-8f4d-b8621af47081": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "20503e73-1829-4275-a645-5be6a02fd7cd": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "20b2298a-90cf-463f-b172-0b398a34f061": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "2293205b-2b15-44da-8220-6833a13c5a80": {
+      "make": "AXIS",
+      "model": "P5514-E"
+    },
+    "22df28bd-413a-4847-9bb7-35a36c914264": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "2334b7bd-a237-4bf5-9224-5241bd4ee29e": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "23605598-4eb1-46c2-8b80-8a8c124f020a": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "23994d9e-7e59-4808-8d47-405f779d19cf": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "23bcc0dd-d395-45fe-8106-676ba7293208": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "23cb2c44-1a40-4950-a914-ee7f1390553c": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "24101bcf-29a7-4417-b77d-1f0368dc212d": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "247c548c-da8e-45fc-8183-6f82be28edee": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "2589c0d6-c389-4861-b812-4ae68f560eba": {
+      "make": "AXIS",
+      "model": "P5514-E"
+    },
+    "25ad72fe-e74c-49af-b4c0-34c9eac14655": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "260fc63c-773a-45e3-a04b-9f05c3184a44": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "29aaea67-bf67-4d6f-b572-f810f48f5b48": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "2b391c96-b487-4e60-81ad-784766fa48da": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "2b4ed602-312d-4f31-a531-153ac33b4d87": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "2bc8aef2-fc97-47e0-84cd-1efc8ee21bfe": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "2be7f4d2-3a72-45ba-95ad-b526643ef248": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "2d1a4d63-7755-4a4f-bce2-79a24bd212bc": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "2d1ed99a-c3d3-4616-a0d6-a9fe16f3e48c": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "2e0d5197-6073-411f-9d1a-326b30841679": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "2e43a9d0-1df8-4a38-ae20-2e0f359bb55d": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "2f28f8df-5eb5-4327-ab1f-7feaf2630b34": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "311fa910-d8d6-4dde-acd4-ebaf275eba77": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "316320b7-ff9c-44d4-b135-c780ee698eeb": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "322bbce7-5011-43b2-9e3d-54eac839a3b6": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "326b2bab-d277-4c5a-9778-a7af791ad151": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "3309fba1-cc5f-483a-92bc-7d85951f1558": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "330e2a88-3cea-4ce5-b1a2-ae8440de9b1a": {
+      "make": "AXIS",
+      "model": "M5525-E"
+    },
+    "33aa3bec-8143-421c-a0f7-866a2feaa352": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "33dda383-4778-48ee-97e7-abcd68b5d365": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "33ea5ed1-0d62-4f44-9fda-fda5c2327eed": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "34616ac5-0cc5-4b86-ac7a-82c77238a536": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "34674be5-4791-47f1-b0b2-2db0ff619732": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "3576217a-82e8-4f2a-854f-3de97ef37362": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "35a808cf-7e4d-4ca5-891d-36ac48518662": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "36d22d6d-bffd-4466-8a9c-9c78a1bb9021": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "36ff050c-ba9c-4920-beaf-ea3b02f2cde5": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "372d3b88-994d-483c-bc8f-5f584477b9c1": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "374c2047-3868-47e0-9767-a1a701d3fc67": {
+      "make": "AXIS",
+      "model": "M5525-E"
+    },
+    "3793f20a-28ce-411d-b09b-f7baa2b6d55b": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "37bb364c-7288-4481-a17d-0ba244d30baa": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "3a3cf44d-6c42-46fb-b774-1441a8582076": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "3a3d7bc0-7f35-46ba-9cca-75fe83aac34d": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "3c079db6-117c-4e79-94ed-5178c1517091": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "3c1e0011-7dbc-4bc9-af2d-e9347754bf91": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "3dc1adcd-7a47-45c3-a667-9d8fae9fdcd0": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "3f04a686-f97c-4187-8968-cb09265e08ff": {
+      "make": "AXIS",
+      "model": "M5525-E"
+    },
+    "3f32e246-a88d-4b87-995f-b9dad6a092b1": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "40213626-3ef8-4d63-be77-e1d84ca4d19c": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "4048d465-2272-446e-bccb-c49ea6d62bd3": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "404fac12-9b5c-430b-a01b-12b50d39521c": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "40961631-fb83-4f48-8ffb-3385448d4e5f": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "41397b64-d035-4b41-a03e-170fe4103d89": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "42446823-2f5a-4db0-a99e-3766d0822485": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "4284c61f-eb9c-419d-99e4-48a7ef681e62": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "4355c2af-b181-4cc2-98ef-cec3b1475c51": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "444aa32f-8102-4ca6-a7f8-5c9fd8fd5571": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "45cb119b-0e4a-442e-9410-b810ab8c255d": {
+      "make": "AXIS",
+      "model": "P5624-E-MkII"
+    },
+    "49a571bf-f15e-4726-9937-aadde6c837ba": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "4ab788f8-4a07-4604-a1f6-f47ce72ea01e": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "4b601090-d552-4c2c-804f-1360305f3dd5": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "4bb3c648-45f8-4134-9ac8-fb56f2f851fa": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "4c3de40f-6f13-491f-9253-1fc93cada807": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "4d84b5d0-c9da-4916-8b0d-4f3d573d3509": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "4ebe49c8-3e68-43f7-b415-da3db9f72693": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "4f688c33-672c-4bac-bf2b-98438d464ccd": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "50725dbd-6e39-4ed0-aa3b-89f9c8feff4e": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "50fed16e-8068-4b89-ada4-246fc112b924": {
+      "make": "AXIS",
+      "model": "Q6318-LE"
+    },
+    "5179f300-88f0-4597-8586-04760e482077": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "52ecb55e-c8aa-4784-85e1-fd7d38faf7e4": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "5361a6ea-95fe-44e1-99f8-dc7d6964a427": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "54d81029-7015-4c05-941b-94688c5aae85": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "54e7c710-bdef-411d-801a-806060a418f6": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "557af346-2f9f-4306-8388-3974b7a49e4d": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "5674d0ea-703a-43c3-bea7-2b372d1eb00b": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "56b99f9c-1f5c-47e2-8c85-d34de045a4ce": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "572b1058-c33a-4de2-8f35-0f3e9e92bc33": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "575d8f33-7923-4ec6-983e-82c58efd8110": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "58ca7f66-a60c-4b2d-9cb5-a68e8ac545ac": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "5920b7ab-9e05-429f-971a-b235f3ea8dd9": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "5933e055-d8a8-4248-a125-fc2ce861b1bc": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "5aa32e02-77f7-436b-9887-fbb7a84a3489": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "5adef8a1-5ad0-4a73-8d87-e1e545ba8cbb": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "5bb6d7d8-39ce-43b8-b539-376fbcf73927": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "5bcf06f4-dbf0-4c7b-b6f3-241aea4e92c6": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "5beee073-18a8-4349-af6b-75eff7a78371": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "5c4582a7-6492-41ac-9bac-fa872878117b": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "5cc1f365-af4a-48be-8819-8f12e18725a3": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "5ce5f31b-fce3-4f60-9534-5986c8b668eb": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "5d055599-875a-4010-991f-e7e454889052": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "5e621a58-dade-4b9a-aef8-24b3038455a4": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "5ed9017b-c053-4c5e-b858-752516683ada": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "5efba010-6a58-4df5-ae2c-ef1eda48fad0": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "5f91d1f5-bc11-44dd-a6a5-a36435ed680c": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "5f9ef54f-f3ac-4ce9-ad39-2e483467867a": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "6024ac17-0c26-4435-96e5-560c41b920ad": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "606916f2-cd00-4893-9d2b-4c9f9d6d974f": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "60793334-580b-4538-b947-7312e95039bf": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "62b3062d-542f-40f1-86ec-206710e789b6": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "62ecb539-5e6c-40ff-a771-ea77153cc4ed": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "6316453d-6161-4b98-a8e7-0e36c69d267c": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "63bf5db0-582d-4482-ad51-52338c7f9906": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "63e79f0b-7dea-4c8e-864c-f3315f9cc62c": {
+      "make": "AXIS",
+      "model": "P5514-E"
+    },
+    "64862ed3-03e3-4452-9e59-189dbeec4a4f": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "65440c6b-ee6c-4406-8542-2992b6edf3f5": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "66533d67-7fe3-4250-b850-88c2fd7ec0e0": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "67a7ce68-80ad-46d3-930c-7cf200109be7": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "67ef8775-026c-4152-8a81-c7251e0677ca": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "67f77766-bd19-4082-adeb-88d59866c490": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "6847c104-0117-4e3f-b30e-e1a859bc8107": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "6851bbf7-e079-4379-b021-e5c7dafcb8c9": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "69278f3b-9d11-4256-8ef7-70c02a01bfc2": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "699cc803-c1db-4307-becf-9604a45c7c5c": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "69c109a1-a8dd-4164-bbc1-88497dc67c1e": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "6a841f4c-93ef-4f51-b38d-80e70053ff8d": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "6ac8b6d3-62c8-4077-a0a6-f66d922376eb": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "6be5adfc-1912-4811-9a04-01c8866280bb": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "6bf2a18c-275b-4ec5-9242-00fee9d1a467": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "6bfee8ce-9d91-4ffb-9586-9b3a0675578d": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "6c2996f1-3d8f-44a9-8ce0-a827ae8d3680": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "6c4cf1a1-0a5c-4d32-b502-e4f28fe609fd": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "6d1bd95a-307b-4067-a31c-f28d48c578b1": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "6d3a21dd-0434-4d92-a0d1-3ca8b77297db": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "6e9a1a7e-63ad-4cab-b14a-1864040409fb": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "7014e990-19e3-4ed3-b175-7708374037e5": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "70c286f0-78bc-43e4-9284-63ea2843c769": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "710191bf-5753-49f7-a524-d0db75526600": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "74fcddb5-5030-4be4-864c-e315e58b86f4": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "7609996b-ec61-4c06-bb58-c9aa93c65b80": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "769a2e94-5bbc-4a03-86a7-39d3a70213f7": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "76c47885-cc54-4e0d-989c-01cf1256dd1a": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "76ce9adc-f73d-46b7-9ca7-fe6d7521b603": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "786650de-d254-47dc-aa8a-de9a4c231a2a": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "789b70ea-f0f9-4e61-b72d-e4bf79fd2218": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "7980448b-0d57-49ad-8b87-50174e5d3065": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "79e4e388-89f4-49ed-880f-390bb2b76651": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "79f45918-c13e-4357-9ccb-9e3e7ea5b6af": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "7a0d9e49-875c-4c25-a92b-3d239de40d43": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "7a183d27-7c22-4014-ac9a-726efa472c79": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "7a6da464-d347-438c-b599-818760cc218b": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "7ae83f13-3d0e-4fd3-bc88-6fc41bde04c3": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "7ae8f58a-84e9-4c9f-9e90-daa2dc548f20": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "7b0f1486-6c0c-4bd4-ac8b-800c4bf2176e": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "7badcb3f-7cb5-4fa6-90fd-40c3b6c40eac": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "7bbbaf2a-ca8d-4fa7-bcc9-bac5ac78d0b9": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "7be9623c-4f70-4815-bc54-5f0411491b83": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "7c92c63b-2786-4600-9108-62cea2806345": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "7c9ef8dd-7587-4e39-b486-13ef4c7e5721": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "7cfc551d-403d-46a8-aa74-89f472b7136b": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "7d1db29e-90a9-4027-b1fc-6e6af4f4f0d9": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "7e13d5e6-bd1a-47af-ba28-39c50e2736c2": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "7faf5dd7-7f16-48c2-a35e-fee36f3da7d4": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "80976618-bbf8-4e7a-8a9d-095f3594244c": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "80b83728-4712-4ab6-aa2f-ae384eb1b91c": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "8188de4c-c144-4897-bee4-767022b832e9": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "822f0cb4-827d-41cd-8f35-2b328a8c1d24": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "8246cf40-87f5-4f3a-b987-369e38a2d450": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "82ff853c-50e3-403a-855b-5f17708a4f38": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "83404149-7deb-43ee-81b5-66fe804c0feb": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "83655dbc-7902-4fdb-926c-15fee4396b83": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "8385d983-6782-4219-8aab-98f26b224f9d": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "83d034f2-584b-4dab-9e3d-d70a59995dc5": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "8437bc26-9eb8-4915-93f7-f8ea4170e739": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "843a0580-a31d-4e5b-90c5-c3875afdfa96": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "84eccaf1-05f2-428c-a086-983a85277278": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "857e40b2-566a-4917-bc08-47920babf3f9": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "85809312-60f2-4a52-a694-82628529c05a": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "858ef4e8-5058-4db2-96e2-70f71b65aa24": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "86d418ab-10bc-4b73-a283-153abffabb0f": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "879ab924-18ac-4779-a681-395d73a0f0cc": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "88895623-f6fa-4509-a927-8eae076725da": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "89177410-fe37-46fa-8021-5951e3d443c0": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "8a60eb4e-4069-4c0f-9bca-b8cc52915ffb": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "8afc5cd6-f735-47e8-bd57-6e6d3b81b442": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "8c13c3b4-b227-4278-9beb-e58314c042d5": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "8c1ea3b6-0db6-4222-ba50-2545f8f82d71": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "8cc75cbc-e050-4947-aee8-639f63fe4ca7": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "8e07d72b-94cd-44c4-b92a-48decda031d2": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "8ea73365-6c7b-423a-87fc-4b6fc279dafa": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "8ee72946-49e0-4f49-991d-4f52b1206ed7": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "8ff9080c-6ba7-483b-be58-3a77c73546d8": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "907af141-b289-47d3-9f41-edc7667cff7e": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "91567cf3-e527-4bb7-a6a6-e95656af5ca8": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "927f8797-4a7e-4b6d-b11f-cee68a027dc9": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "936e562d-df76-4120-b2b6-112bc450aa94": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "957fc40e-675c-4121-a3bc-ca3c0a246831": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "958d42a3-2b29-490f-ad0b-473423ee51e9": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "95f77270-6143-4522-b55e-a3ef8cc48e18": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "96be7098-dda4-42da-bfe2-55bc5c6b94fb": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "96f64a79-929b-4f8e-b160-306313054dec": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "97315cc7-688a-4139-93de-4c58c59fbede": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "97ace0b4-fcd2-4c3a-8c05-dbf73639ead3": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "984ebbad-ca64-41d8-8008-63aaae316952": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "98b37dd5-bd64-4ace-add0-37f5135df600": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "98c2de4e-fa0c-41d0-b1ea-6d1df833d792": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "98fc3e41-66be-42d7-8f69-5cc76ae7226f": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "9955d671-39ad-4fb7-b63e-4e78cf6ac157": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "99bd1846-c0e4-4689-b077-63d2525bf1aa": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "9b4553f1-6aa3-46eb-8905-ecbfecb83ce3": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "9b57d5a0-d4fb-47ab-8df5-1d093228189e": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "9b648eba-3e4a-4c2c-9afc-e659c1083804": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "9bdd7740-762f-48e9-b40c-3db03c2a43f5": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "9c6dae83-0258-489e-a9cd-83396cf8dad7": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "9cc8495e-aeee-4759-adba-5a6bf5efd4b9": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "9d7c4525-fba3-4ffe-ae79-f814f7dccf4e": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "9d86d84c-6d3a-45a6-a8ad-fb5ab52f2b52": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "9e3164a8-1c63-4790-bc24-f9d752f3ae41": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "9eca011a-81b1-4e4a-b44a-4ee2bc8affff": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "9f118098-cee3-4964-8630-b932c94f70a3": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "9fda4742-9a18-4a32-b090-8825b201f0d5": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "a01a8c98-d314-4eb4-b97c-4a4f80d71c4b": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "a0ecf291-582c-4c42-933f-0b9ed4ce885c": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "a2017340-a9a6-41d4-921f-8c7daa48cdac": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "a249b3ee-bde9-4d6d-9a18-9cd2108d2eb0": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "a26130e0-3c9b-4f43-b253-209d80d441f8": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "a3058350-1552-459f-8379-2fd06895e70a": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "a409e9bd-6a0f-4cdc-81d8-290d5709dc74": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "a4417c97-9878-4b98-902f-58860d63e7cb": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "a454105b-8f59-4d96-a656-9a2d29f1353d": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "a4bb497d-7e15-47c4-9787-374b013efbbe": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "a4fa36ac-f546-4ec1-b579-135f0ab204de": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "a65f8b8a-c0ba-4138-81a5-783ba837490d": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "a6811e67-15ac-4289-97be-9c6dd1ae1c75": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "a69c70f4-cedf-440c-83f7-743e7a158d09": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "a6b2c1c8-1124-4dec-aa22-c8d87f6835ec": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "a6bd09c7-9195-4e0b-ac0f-78114a7d63a1": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "a7611e0c-1028-4975-b94b-14e75ec0b217": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "a8b56a8b-1451-4290-9d8f-c770f80c855a": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "a991a948-12b9-450a-a5ea-7ae01679f037": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "a9979a0c-71f2-4f5e-a87c-4d29c1104d5c": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "a9b2501d-062f-43f8-9419-f89faa4f36ba": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "a9fb8f19-98a1-4b2b-a920-a3537cc4908f": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "aacb43bf-ed37-44c6-a2fe-8449a7851306": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "abb47d30-e011-47bc-ac00-622924bc5acd": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "ac9ea7e9-4ab8-4188-be33-40266bcf9378": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "ad00e0d3-02f2-4578-b0f1-b9d176d117d1": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "ad3df063-d5d6-458c-84e7-1242060649cf": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "ae2f7e1a-e781-4d24-9434-12f4f4ef4f2b": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "af2b479e-ec78-46b0-be35-6bbbd1691460": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "af741eca-a192-41be-890a-22c7ae7d159a": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "b03d3f18-928f-4fcf-b0f5-bbd18314f492": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "b0670166-0aa0-4f93-a6f6-8bf07a9ea663": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "b0cbb042-de0a-449f-b5d1-49f68a9bf2ae": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "b1d5d592-9e36-478e-bedc-5fb02d836bc3": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "b331d9d1-c081-4476-8302-83445ac196e7": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "b43f6602-fb0f-4eb4-a019-ac7101aab067": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "b47d139f-69ae-427e-86b4-f970f9e990e1": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "b591a4be-a1aa-4978-ab2c-be4a17eb190e": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "b6558fc0-d62b-4b25-b7aa-6b592bde2c44": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "b6ce5739-ca1f-4a8d-bfd7-5979d6ff6dfc": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "b7e5959c-1fc5-4fd2-a73e-426127b587b1": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "b9085289-750b-403a-8031-681678d35ae0": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "b95471db-03ed-4fc3-9b91-561328029fd4": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "b9c20141-52ca-43a1-a7df-c2577ca384b6": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "ba4a1b3a-6e33-4742-a471-18f204f488ef": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "bb9ce48d-0458-4493-89ad-ae51065b5796": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "bca4a4b0-d73f-4937-9301-85ff8293bd94": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "bcafb919-3f51-4caa-b964-d6888ed4cecf": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "be6b6830-b90d-40ab-98ab-9d67eb81e673": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "be732c0a-c4f8-4ae4-a751-1fc011f160e7": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "bedbc19d-977d-40b6-ba48-01c5454bea69": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "bf5db978-c464-44c9-ac88-af9977af4505": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "bfeb2434-fd55-4024-8172-f9602ea6ae06": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "bff9cee2-1513-4af3-9838-ea7a35552049": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "c073c2d9-919f-4ba3-ad13-d331d378e12b": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "c0f05969-abc6-4fa6-b317-3e6ba03e989a": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "c145d543-b5f5-4dec-9bb8-7866eafdf054": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "c173fe45-9067-4582-81ef-cab0aad56afd": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "c2b6f1ab-8baa-4384-9dc9-5bd2e374701e": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "c3169415-bb26-4cea-8a12-36afd3e37f18": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "c5040f93-f4ec-4803-8370-8b931b0443e2": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "c531c196-3944-4318-8c33-92eb2be792ac": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "c562d33e-ee4d-4233-b2d2-cc301f64ed4a": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "c5af3e42-bb95-4aa3-a9d1-2d8071412dab": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "c6022d8a-69df-45be-aadd-ec39a18a18fb": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "c6d013c9-e69b-4824-8dad-b6580491d916": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "c6d82dbd-1c49-478f-819f-a38c1826b628": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "c74510ed-35cf-4908-ad10-f2c9575cc853": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "c914c9ae-00b2-4b77-abb9-0a85f903e34e": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "c941aa1a-ebde-4589-9669-eaf67279dfab": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "cb0647f4-b9fd-4065-a297-ebfcd4f8d270": {
+      "make": "AXIS",
+      "model": "P5514-E"
+    },
+    "cbb04872-5f62-4989-acaa-e4166fa7c819": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "cbd7c7a6-9bc5-4d6d-baf4-61b648dd589d": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "cbd86999-5bb1-4f2d-addd-dbf15fa3609d": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "cd229284-a743-4ac4-9430-366f11e68d6c": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "cda76289-afd2-498e-a0e9-420a1854c38a": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "cde75072-a814-46b4-8785-765b314c43e8": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "ce81bdbd-967b-4ad0-ab40-c4628bb59560": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "cf6d1124-f012-4678-9277-2dca8d18232b": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "d016d3ce-4399-4487-a1a8-2c16620a251d": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "d019c28c-80f5-490b-8a35-198477ac3fb0": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "d05b98ae-f2a7-4c26-8238-754081877484": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "d0ea28d7-e1d3-4277-aebc-586a70b60957": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "d1d8cd99-7609-409a-a739-f5913dabf4e6": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "d1e071f1-57c6-4e6a-b813-0c50b90f7b1a": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "d24b0435-67e7-498a-91f6-f3a65bd86be2": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "d2940392-4ee6-433a-ae24-f4f4f15f2566": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "d324cf02-ff01-4b1d-a480-39143ced22cc": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "d45fb588-de4c-4139-9e27-5b2d4c371b3d": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "d560faa5-0f60-4ac4-ae1e-b4af096d9adc": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "d5ed6e53-5a1f-404f-8394-a1ed88a2c429": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "d67e45e9-034f-4bd9-9bc3-12d07a12af48": {
+      "make": "AXIS",
+      "model": "M5525-E"
+    },
+    "d7496b4f-f3b5-4a49-89d3-4212e0606205": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "d766db98-8b2c-406a-b0ea-f437e2216157": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "d78ebdc6-2211-479e-bda6-59d79db20258": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "d7d6c994-492d-4f3a-895e-745596825fb4": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "d7ee32d6-895f-4e37-bdd9-f97b06b24f3d": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "d8122408-7092-41ba-a9db-ef8847edeaef": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "d8e022cc-c262-45ac-a939-8e86e20853fd": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "d9cd00ff-9b8e-492f-8b02-db27b6cf847c": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "db84e6bd-1436-4213-bbfb-f6e0ceab38c7": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "db8c2d21-00cd-4508-945d-38fcd92367d2": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "dc0cb00c-0b2e-4851-9f8a-67954e4adbdb": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "dce301aa-b937-4041-b9fc-960abcd79178": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "dcef88ca-8811-4b82-8fa9-50225dd03bc4": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "dd374f35-08c9-482d-ae36-ce8e7c0cfb54": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "dd80055d-ae29-469e-bce5-bf62228a3178": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "ddc62c2f-dab2-48e0-918e-742e62e78ec1": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "df527f8d-1d60-4c90-9b22-badbb87e469d": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "df5bc905-6296-4f6e-ae6e-20a39b56da43": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "dfac53ae-0460-409d-8514-6db67de9aff3": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "dfed3e07-de07-4243-8a41-509a1800cd1e": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "e029a178-4289-4914-bf64-109d43b0ae35": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "e278de5c-4cfa-46e7-aa85-59512db61f0d": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "e38fd7b8-c074-4b6e-bc52-4dd932145239": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "e438c68c-c1e4-4fc1-9d1e-28cab8acb42a": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "e4542be1-fe19-4efa-a25e-0d0c1065c8a2": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "e4767b49-3611-4be2-895f-1fc03261653b": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "e49e8537-9891-44ba-ac1f-41db307934cf": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "e5f14a79-fe4c-450e-b81e-21d8c9e1ea9b": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "e5f322e7-e38c-4a3c-9b1b-8df2cb459884": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "e610bc71-9bfb-4a92-928d-ad33cd1b9afd": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "e64ec820-69c4-4cc9-b573-4d7d66c4a7eb": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "e676b48b-e3ff-4f8f-9388-7d1206094f83": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "e6a7fd91-8669-4c27-a8d8-8a6941b62759": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "e6ba1d11-d27e-441f-b385-a8ae85a3fc74": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "e73b2210-e5e7-42c0-a48f-5ce07b28da43": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "e86cf7d8-0782-40d7-885c-f4a9218988d9": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "e8a479f8-5170-4f1f-b258-b9745c966c71": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "e96fb86f-4bf6-4f97-b7f3-ec4f2e960788": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "ebd920f9-8522-4ae7-af8f-b887256fdaa1": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "ebec9de9-3f56-477a-a413-2e0a09b2b6ba": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "ec1e7b42-18de-4475-8c89-9e80f21e5b6c": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "ec44d35d-829f-4bcf-a38f-3bf45a6d31b4": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "ec9eda79-e250-4e6f-a8f6-e51021fb054f": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "ec9ffb62-e3bf-4352-8bcf-7c9adf5fbe9c": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "ed0f8bd4-fe44-4f86-98a9-91f45b446200": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "ed12f2da-9f65-44f0-a162-123c412716c6": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "f06979b2-3497-4330-9882-a06c8a442b7c": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "f2029d59-52c0-44b9-8030-90e03f710f8f": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "f2964d50-042c-4021-8b52-992c08c6ff6f": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "f2b94b32-fc41-42b6-935d-8330374ca05a": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "f388803c-7e1b-4d67-ad61-87b25934a8a2": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "f3d14ce1-8df5-4c5c-88b8-f17f56077e04": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "f4c47f52-9c8d-494a-92da-4dcc09a19fab": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "f4e822f7-d2a2-4146-851c-04b2fa6d5265": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "f51e9c5b-2698-4777-a6be-1e1994b334c2": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "f5c6fd9c-8e5b-4c3c-8c3e-31233678f15b": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "f5d272cf-3bc6-48c3-94d0-808c4003a4e9": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "f664cb82-a0fc-467e-9a6a-ca34c89cc63c": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "f6799b6f-b7f9-451b-8c7a-eacc9e8c36a8": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "f68ca680-62ac-4ad5-aa9d-7a83742b15d3": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "f78c30e5-2a4d-4a71-b5d4-482ba70d585f": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "f7c4d5d5-f4d4-4590-9459-6491507ae9f9": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "f801cf2f-cd02-4077-aa53-99ee8a00e1ab": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "f96c7b05-c0a1-4d3c-93ae-b025bdea422a": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "f9e26c16-1cd9-495d-a988-bd80666c28bb": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "f9ed4dbb-7dd1-4b0c-80df-7f5586109599": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "fa287d30-44a9-48ef-90d6-5ab0a54eab15": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "fb31c502-9b4a-4c19-9b26-5b84a1a39ec3": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "fb34b9cf-f64d-4645-96f6-bd0243dffda0": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "fbaafcae-6f48-46ab-b6c7-b8919bcd5986": {
+      "make": "AXIS",
+      "model": "P5655-E"
+    },
+    "fbe41159-b7cd-4b91-a365-5656bae67ae7": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "fbfe89f1-6410-4189-bbeb-7e5fce28bf82": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "fcaf0a31-e2ec-4abe-815d-2623d5e7b87b": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "fcc24aa5-4da0-48f2-aa43-e70e4677517c": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "fcd793fc-d600-40a6-949b-b168d96368fd": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    },
+    "fdb5054c-08b7-4a84-91cb-b61aa890d8b0": {
+      "make": "AXIS",
+      "model": "Q6075-E"
+    },
+    "fec41cf4-e167-48ae-9d40-785d8e86078d": {
+      "make": "AXIS",
+      "model": "Q6055-E"
+    }
+  }
+}

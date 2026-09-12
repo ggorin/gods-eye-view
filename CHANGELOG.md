@@ -18,7 +18,10 @@ of current runtime behavior, see [`docs/CURRENT-STATE.md`](docs/CURRENT-STATE.md
   (`CCTV_NYCDOT_MAX_SOURCES`) and spread by nearest-borough-core so the cap does
   not stack Midtown. `CCTV_NYCDOT_ENABLED=0` removes the pack. The overall
   `CCTV_MAX_SOURCES` default rises from 900 to 1,100 so every default pack seats
-  whole; the 1,200 ceiling is unchanged.
+  whole; the 1,200 ceiling is unchanged. NYC DOT cameras that share a mount
+  with a 511NY (NYSDOT) camera take its published facing as their heading,
+  and a bundled camera-model registry read from frame EXIF sets a per-model
+  field of view and flags pan-tilt-zoom units.
 
 - Separate terrain, traffic, FIRMS and GBFS middleware into focused provider
   modules, preserving local configuration, routes and cache/error behavior.

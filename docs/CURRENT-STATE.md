@@ -2219,6 +2219,23 @@ silently demoting every later lookup for the session.
   default packs seat whole (250 + 300 + 250 + 300), ceiling unchanged at 1,200. Terms:
   see DATA_SOURCES.md — NYC DOT's developer agreement has not been confirmed to cover the
   public map API, which is why the pack has its own kill switch.
+  **Pose enrichment (2026-09-12):** facing resolution is name token → 511NY → id-hash.
+  The 511NY camera list is fetched alongside the catalog (self-catching; keyless today,
+  `NY511_API_KEY` appended when set, `CCTV_NYCDOT_511NY_ENABLED=0` skips) and indexed on a
+  0.01° grid; a city camera within 30 m of a 511NY row with a cardinal `DirectionOfTravel`
+  takes that heading at `high` confidence with `headingProvenance:'511ny'` (~117 cameras —
+  shared city/state mounts on the BQE, LIE, Van Wyck, Deegan, Cross Bronx). "Unknown",
+  "Both Directions" and "Inbound" rows are not indexed. A bundled registry
+  (`config/nycdot_camera_models.json`, from `scripts/nycdot-camera-models.mjs`, which reads
+  the EXIF Make/Model tag off one frame per camera; 436 of 972 carried one) supplies
+  `cameraModel` and `ptz` — every model seen is an AXIS pan-tilt-zoom dome (Q6055-E 231,
+  Q6075-E 119, P5655-E 75, plus a handful of M5525-E / P5514-E / Q6215-LE / P5624-E /
+  Q6318-LE); a model with a datasheet entry replaces the personality FOV prior with its
+  wide-end horizontal FOV (Q6055-E 62.8°, Q6075-E 65.1°, P5655-E 58.3°, Q6318-LE 58.5°).
+  `normalizeSourceItem` passes `headingProvenance`, `cameraModel` and `ptz` through
+  additively; nothing on the client reads them yet. A PTZ pose is trustworthy only until an
+  operator moves the dome — which is the argument against ever shipping curated poses for
+  those units.
 - **CCTV v3 UX — viewshed + calibration gizmo** (built 2026-07-05 and field
   validated 2026-07-21): the COVERAGE toggle is a
   tri-state cycle `OFF → ON → VIEWSHED`; viewshed mode renders each visible camera's frustum
