@@ -1593,13 +1593,16 @@ const CSCL_MAX_RESPONSE_BYTES = 16 * 1024 * 1024;
  * (or the invalidation below) picks the index up. Measured ~3.5 s. */
 const CSCL_COLD_WAIT_MS = 8 * 1000;
 const DEFAULT_ROAD_SNAP_MAX_M = 80;
+/** Heading provenances that are signed carriageway directions. */
+const ROAD_SNAP_PROVENANCE = new Set(['name', '511ny']);
 /** @type {{index: object, loadedAt: number, segments: number}|null} */
 let _roadIndex = null;
 /** @type {Promise<object|null>|null} single-flight cold load */
 let _roadIndexInflight = null;
-/** Camera make/model per NYC DOT camera, read from frame EXIF by
- * scripts/nycdot-camera-models.mjs. A slow-changing prior; absent file = no
- * model data, never an error. */
+/** Per-camera registry for NYC DOT, built by scripts/nycdot-camera-models.mjs:
+ * make/model from frame EXIF, and the facing the encoder burns into the
+ * caption strip ("Facing West") read by OCR. A slow-changing prior; absent
+ * file = no registry data, never an error. */
 const DEFAULT_NYCDOT_MODELS_FILE = 'config/nycdot_camera_models.json';
 /** Wide-end horizontal field of view by model, from the AXIS datasheets. Used
  * as the FOV prior for a PTZ parked at wide angle — still a prior, because the
@@ -2389,13 +2392,22 @@ export function normalizeNycdotCatalogPayload(payload, { facingIndex = null, mod
     // carry a token; the rest take the id-hash fallback at low confidence,
     // same as headingless Austin/TfL cameras.
     const nameHeading = directionToHeading(name, false);
-    // Facing resolution order: explicit token in the name, then a 511NY camera
-    // on the same mount (shared city/state units, ~280 of them), then the
-    // id-hash fallback. Both real sources are cardinal facings of the kind
-    // Caltrans publishes, so they earn the same 'high' confidence.
+    const registryEntry = models?.[rawId];
+    const captionHeading = Number.isFinite(registryEntry?.facingHeadingDeg) ? registryEntry.facingHeadingDeg : NaN;
+    // Facing resolution order: the facing the encoder burns into the frame
+    // caption ("Facing West", read by OCR into the registry — a COMPASS
+    // direction stated by the operator), then an explicit travel token in the
+    // name, then a 511NY camera on the same mount (shared city/state units,
+    // ~280 of them), then the id-hash fallback. The last two are SIGNED
+    // carriageway directions and get resolved against road geometry by
+    // applyRoadSnap; the caption is already a compass bearing and is not.
+    // All three real sources earn 'high' confidence.
     let heading = NaN;
     let headingProvenance = 'fallback';
-    if (Number.isFinite(nameHeading) && nameHeading % 90 === 0) {
+    if (Number.isFinite(captionHeading)) {
+      heading = captionHeading;
+      headingProvenance = 'caption';
+    } else if (Number.isFinite(nameHeading) && nameHeading % 90 === 0) {
       heading = nameHeading;
       headingProvenance = 'name';
     } else {
@@ -2406,7 +2418,7 @@ export function normalizeNycdotCatalogPayload(payload, { facingIndex = null, mod
       }
     }
     const hasHeading = Number.isFinite(heading);
-    const cameraModel = nycdotModelLabel(models?.[rawId]);
+    const cameraModel = nycdotModelLabel(registryEntry);
     const modelFov = cameraModel ? NYCDOT_MODEL_FOV_DEG[cameraModel] : undefined;
     const ptz = cameraModel ? NYCDOT_PTZ_MODEL_RE.test(cameraModel) : false;
 
@@ -2610,12 +2622,13 @@ async function loadNycRoadIndex() {
 }
 
 /**
- * Snap cameras that carry a real signed facing onto the carriageway that
- * agrees with it: the heading becomes the road's true bearing there and the
- * mount moves onto the centreline (the catalog point stays in sourceLat/Lon
- * so proximity dedupe still sees where the feed put it). Cameras without a
- * high-confidence facing, or with no agreeing road within range, are
- * returned untouched. Pure: exported for tests.
+ * Snap cameras that carry a real SIGNED facing (headingProvenance 'name' or
+ * '511ny') onto the carriageway that agrees with it: the heading becomes the
+ * road's true bearing there and the mount moves onto the centreline (the
+ * catalog point stays in sourceLat/Lon so proximity dedupe still sees where
+ * the feed put it). Cameras without a high-confidence signed facing, or with
+ * no agreeing road within range, are returned untouched. Pure: exported for
+ * tests.
  *
  * @param {Array<object>} cameras - Normalized pack cameras (mutated in place).
  * @param {object|null} index - From buildRoadIndex.
@@ -2627,6 +2640,9 @@ export function applyRoadSnap(cameras, index, { maxDistanceM = DEFAULT_ROAD_SNAP
   let snapped = 0;
   for (const camera of cameras) {
     if (!camera || camera.headingConfidence !== 'high') continue;
+    // Only SIGNED facings ("Eastbound", "BQE EB") name a carriageway; a
+    // caption "Facing West" is already a compass bearing and stays put.
+    if (!ROAD_SNAP_PROVENANCE.has(String(camera.headingProvenance))) continue;
     const hit = snapToRoad(index, camera.lat, camera.lon, camera.headingDeg, { maxDistanceM });
     if (!hit) continue;
     camera.sourceLat = camera.lat;

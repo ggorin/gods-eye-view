@@ -35,6 +35,10 @@ of current runtime behavior, see [`docs/CURRENT-STATE.md`](docs/CURRENT-STATE.md
   moves onto the carriageway. Before this the BQE's "Eastbound" cameras
   pointed due east across the neighbourhood.
 
+- NYC DOT cameras whose frame caption states a facing ("Facing West …") now
+  use it as their heading. The registry rebuild script reads the caption by
+  OCR alongside the EXIF model.
+
 - Separate terrain, traffic, FIRMS and GBFS middleware into focused provider
   modules, preserving local configuration, routes and cache/error behavior.
 

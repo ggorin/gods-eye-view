@@ -2219,7 +2219,13 @@ silently demoting every later lookup for the session.
   default packs seat whole (250 + 300 + 250 + 300 + 300), ceiling raised 1,200 → 1,500. Terms:
   see DATA_SOURCES.md — NYC DOT's developer agreement has not been confirmed to cover the
   public map API, which is why the pack has its own kill switch.
-  **Pose enrichment (2026-09-12):** facing resolution is name token → 511NY → id-hash.
+  **Pose enrichment (2026-09-12):** facing resolution is caption → name token → 511NY →
+  id-hash. The caption is the facing NYC DOT's encoders burn into the top strip of the frame
+  ("Facing West Sat Sep 12 …"), read once per camera by `scripts/nycdot-camera-models.mjs`
+  (sharp crop + 4x upscale + `tesseract --psm 7`, `server/providers/common/caption-facing.js`
+  tolerating the bitmap-font misreads "Wiest"/"Nortn"/"Eest") into the same registry as the
+  EXIF model; it is a COMPASS direction stated by the operator, so it earns `high` confidence
+  with `headingProvenance:'caption'` and is never road-snapped.
   The 511NY camera list is fetched alongside the catalog (self-catching; keyless today,
   `NY511_API_KEY` appended when set, `CCTV_NYCDOT_511NY_ENABLED=0` skips) and indexed on a
   0.01° grid; a city camera within 30 m of a 511NY row with a cardinal `DirectionOfTravel`
@@ -2250,7 +2256,8 @@ silently demoting every later lookup for the session.
   trims 511NY first.
   **Road snap (2026-09-12):** a signed facing is a carriageway name, not a bearing (511NY
   calls the BQE at Division Ave "Eastbound"; the lanes run 22°). `applyRoadSnap()` takes every
-  NYC DOT / 511NY camera with a `high` facing, finds NYC Street Centerline pieces
+  NYC DOT / 511NY camera with a `high` SIGNED facing (`headingProvenance` 'name' or '511ny';
+  caption facings are compass and stay put), finds NYC Street Centerline pieces
   (`server/providers/common/road-snap.js`; CSCL highway/bridge/tunnel/ramp rows with
   `trafdir`, fetched keyless from NYC Open Data, disk-cached 7 days under `.gev-cache/cscl/`,
   ~41k two-point pieces on a 0.01° grid) within 80 m (`CCTV_ROAD_SNAP_MAX_M`) whose travel

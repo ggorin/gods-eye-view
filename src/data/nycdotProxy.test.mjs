@@ -231,6 +231,30 @@ test('camera-model registry sets the datasheet FOV and the PTZ flag', () => {
   assert.equal(byId.unlisted.ptz, undefined);
 });
 
+test('caption facing from the registry wins over name tokens and 511NY, as a compass bearing', () => {
+  const facingIndex = build511nyFacingIndex([ny511Row({ Latitude: 40.785302, Longitude: -73.969353, DirectionOfTravel: 'Southbound' })]);
+  const models = {
+    cap: { make: 'AXIS', model: 'Q6055-E', facing: 'west', facingHeadingDeg: 270 },
+    capOnly: { facing: 'northeast', facingHeadingDeg: 45 },
+  };
+  const [cap, capOnly, none] = normalizeNycdotCatalogPayload([
+    cameraRow({ id: 'cap', name: 'Central Park West NB @ 86 St' }),
+    cameraRow({ id: 'capOnly', name: 'Central Park West @ 86 St' }),
+    cameraRow({ id: 'none', name: 'Central Park West @ 86 St' }),
+  ], { facingIndex, models });
+
+  assert.equal(cap.headingDeg, 270, 'caption beats the NB token and the 511NY Southbound');
+  assert.equal(cap.headingProvenance, 'caption');
+  assert.equal(cap.headingConfidence, 'high');
+  assert.equal(cap.cameraModel, 'AXIS Q6055-E');
+
+  assert.equal(capOnly.headingDeg, 45, 'intercardinal captions are fine — they are compass, not signed');
+  assert.equal(capOnly.headingProvenance, 'caption');
+  assert.equal(capOnly.cameraModel, undefined, 'a facing-only entry carries no model');
+
+  assert.equal(none.headingProvenance, '511ny');
+});
+
 test('camera-model registry file is optional and malformed content is ignored', () => {
   const dir = mkdtempSync(path.join(tmpdir(), 'nycdot-models-'));
   const good = path.join(dir, 'good.json');
@@ -357,22 +381,24 @@ test('road snap moves high-confidence cameras onto the agreeing carriageway and 
     { id: 'b', lat: 40.7020, lon: -73.9885, headingDeg: 90, headingConfidence: 'low', headingProvenance: 'fallback' },
     { id: 'c', lat: 40.7020, lon: -73.9885, headingDeg: 270, headingConfidence: 'high', headingProvenance: 'name' }, // no westbound lanes here
     { id: 'd', lat: 40.7300, lon: -73.9885, headingDeg: 90, headingConfidence: 'high', headingProvenance: '511ny' }, // 3 km away
+    { id: 'e', lat: 40.7020, lon: -73.9885, headingDeg: 90, headingConfidence: 'high', headingProvenance: 'caption' }, // compass: never snapped
   ];
 
   assert.equal(applyRoadSnap(cameras, index), 1);
-  const [a, b, c, d] = cameras;
+  const [a, b, c, d, e] = cameras;
   assert.ok(a.headingDeg > 15 && a.headingDeg < 35, `true bearing, got ${a.headingDeg}`);
   assert.equal(a.headingProvenance, '511ny+road');
   assert.equal(a.sourceLon, -73.9885, 'catalog point preserved');
   assert.notEqual(a.lon, -73.9885, 'mount moved');
   assert.ok(a.roadSnappedM > 5 && a.roadSnappedM < 80);
-  for (const untouched of [b, c, d]) {
+  for (const untouched of [b, c, d, e]) {
     assert.equal(untouched.lon, -73.9885);
     assert.equal(untouched.roadSnappedM, undefined);
     assert.ok(!String(untouched.headingProvenance).endsWith('+road'));
   }
   assert.equal(b.headingDeg, 90);
   assert.equal(c.headingDeg, 270);
+  assert.equal(e.headingDeg, 90, 'a caption facing keeps its compass bearing');
 
   assert.equal(applyRoadSnap(cameras, null), 0);
   assert.equal(applyRoadSnap(null, index), 0);

@@ -67,9 +67,11 @@ How to read this:
   30 m, and a matched row's cardinal `DirectionOfTravel` becomes the camera's heading, since
   ~280 city cameras are shared city/state mounts; and a **camera-model registry**
   (`config/nycdot_camera_models.json`, rebuilt by `scripts/nycdot-camera-models.mjs`) holding
-  the EXIF Make/Model each AXIS frame carries (436 of 972 cameras on 2026-09-12) — metadata
-  only, no frames are stored — which selects the datasheet wide-end field of view and flags
-  pan-tilt-zoom units.
+  the EXIF Make/Model each AXIS frame carries (436 of 972 cameras on 2026-09-12) and the
+  facing the encoder burns into the frame's caption strip ("Facing West …", read by OCR with
+  `tesseract`) — metadata only, no frames are stored — which selects the datasheet wide-end
+  field of view, flags pan-tilt-zoom units, and supplies a compass heading for the cameras
+  whose caption states one.
 - **511NY cameras.** The same `511ny.org/api/getcameras` list is also a pack of its own. The
   feed publishes no still URL, only an HLS `VideoUrl` on NYSDOT's Skyline CDN, and the CCTV
   layer is stills-first — but each row's `Url` (its 511NY map page) answers with a 512x288
