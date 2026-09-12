@@ -341,3 +341,39 @@ test('511NY pack ids are sanitized and stable', () => {
   assert.deepEqual(normalizeNy511CatalogPayload({}), []);
   assert.deepEqual(normalizeNy511CatalogPayload([{}]), []);
 });
+
+// ---- Road snap applied to pack cameras --------------------------------------
+
+import { applyRoadSnap } from '../../vite.config.js';
+import { buildRoadIndex } from '../../server/providers/common/road-snap.js';
+
+test('road snap moves high-confidence cameras onto the agreeing carriageway and keeps the rest', () => {
+  // Eastbound lanes running NNE; the camera sits 25 m east of them saying "Eastbound".
+  const index = buildRoadIndex([
+    { id: 'eb', name: 'BQE', travel: 'forward', coords: [[40.7000, -73.9900], [40.7040, -73.9876]] },
+  ]);
+  const cameras = [
+    { id: 'a', lat: 40.7020, lon: -73.9885, headingDeg: 90, headingConfidence: 'high', headingProvenance: '511ny' },
+    { id: 'b', lat: 40.7020, lon: -73.9885, headingDeg: 90, headingConfidence: 'low', headingProvenance: 'fallback' },
+    { id: 'c', lat: 40.7020, lon: -73.9885, headingDeg: 270, headingConfidence: 'high', headingProvenance: 'name' }, // no westbound lanes here
+    { id: 'd', lat: 40.7300, lon: -73.9885, headingDeg: 90, headingConfidence: 'high', headingProvenance: '511ny' }, // 3 km away
+  ];
+
+  assert.equal(applyRoadSnap(cameras, index), 1);
+  const [a, b, c, d] = cameras;
+  assert.ok(a.headingDeg > 15 && a.headingDeg < 35, `true bearing, got ${a.headingDeg}`);
+  assert.equal(a.headingProvenance, '511ny+road');
+  assert.equal(a.sourceLon, -73.9885, 'catalog point preserved');
+  assert.notEqual(a.lon, -73.9885, 'mount moved');
+  assert.ok(a.roadSnappedM > 5 && a.roadSnappedM < 80);
+  for (const untouched of [b, c, d]) {
+    assert.equal(untouched.lon, -73.9885);
+    assert.equal(untouched.roadSnappedM, undefined);
+    assert.ok(!String(untouched.headingProvenance).endsWith('+road'));
+  }
+  assert.equal(b.headingDeg, 90);
+  assert.equal(c.headingDeg, 270);
+
+  assert.equal(applyRoadSnap(cameras, null), 0);
+  assert.equal(applyRoadSnap(null, index), 0);
+});

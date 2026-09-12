@@ -52,6 +52,7 @@ import { Readable } from 'node:stream';
 import https from 'node:https';
 import { lookup as lookupDns } from 'node:dns/promises';
 import { directionToHeading } from '../../src/data/directionText.js';
+import { buildRoadIndex, segmentsFromCscl, snapToRoad } from './common/road-snap.js';
 
 
 import { fileURLToPath } from 'node:url';
@@ -1577,6 +1578,25 @@ const NY511_STATEWIDE_ANCHORS = [
 ];
 const NY511_NYC_ELEVATION_M = 15;
 const NY511_STATEWIDE_ELEVATION_M = 120;
+/** Road snap for highway cameras with a signed facing (NYC DOT + 511NY).
+ * Geometry: NYC Street Centerline (CSCL, NYC Open Data inkn-q76z), highway /
+ * bridge / tunnel / ramp segments with their traffic direction — ~11k rows,
+ * ~3.7 MB, keyless. Cached on disk for a week; rebuilt in memory per process. */
+const CSCL_HIGHWAYS_URL = 'https://data.cityofnewyork.us/resource/inkn-q76z.json'
+  + '?$where=' + encodeURIComponent('rw_type in ("2","3","4","9")')
+  + '&$limit=20000&$select=' + encodeURIComponent('physicalid,full_street_name,rw_type,trafdir,the_geom');
+const CSCL_DISK_PATH = path.join(process.cwd(), '.gev-cache', 'cscl', 'nyc-highways.json');
+const CSCL_DISK_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+const CSCL_MAX_RESPONSE_BYTES = 16 * 1024 * 1024;
+/** How long a catalog refresh waits for a COLD centerline fetch before
+ * building unsnapped poses; the fetch keeps running and the next refresh
+ * (or the invalidation below) picks the index up. Measured ~3.5 s. */
+const CSCL_COLD_WAIT_MS = 8 * 1000;
+const DEFAULT_ROAD_SNAP_MAX_M = 80;
+/** @type {{index: object, loadedAt: number, segments: number}|null} */
+let _roadIndex = null;
+/** @type {Promise<object|null>|null} single-flight cold load */
+let _roadIndexInflight = null;
 /** Camera make/model per NYC DOT camera, read from frame EXIF by
  * scripts/nycdot-camera-models.mjs. A slow-changing prior; absent file = no
  * model data, never an error. */
@@ -2525,6 +2545,103 @@ export function normalizeNy511CatalogPayload(rows, { statewide = false, excludeN
 }
 
 /**
+ * Fetch the NYC highway centerline and build the road index. Disk-cached a
+ * week under .gev-cache/cscl; self-catching → null.
+ * @returns {Promise<object|null>}
+ */
+async function fetchNycRoadIndex() {
+  const build = (rows, source) => {
+    const segments = segmentsFromCscl(rows);
+    const index = buildRoadIndex(segments);
+    _roadIndex = { index, loadedAt: Date.now(), segments: segments.length };
+    console.log(`[CCTV] Road snap index ready (${source}): ${segments.length} NYC highway segments, ${index.pieces} pieces`);
+    return index;
+  };
+  try {
+    const raw = await fsp.readFile(CSCL_DISK_PATH, 'utf8');
+    const cached = JSON.parse(raw);
+    if (cached && Array.isArray(cached.rows) && Number.isFinite(cached.cachedAt) && Date.now() - cached.cachedAt <= CSCL_DISK_TTL_MS) {
+      return build(cached.rows, 'disk');
+    }
+  } catch { /* no usable disk copy */ }
+  try {
+    const resp = await fetch(CSCL_HIGHWAYS_URL, {
+      headers: { Accept: 'application/json', 'User-Agent': 'gods-eye-view-cctv-proxy/1.0' },
+      signal: AbortSignal.timeout(45 * 1000),
+    });
+    if (!resp.ok) {
+      console.warn('[CCTV] NYC centerline download failed:', resp.status);
+      return null;
+    }
+    const rows = JSON.parse(await readResponseTextCapped(resp, CSCL_MAX_RESPONSE_BYTES));
+    if (!Array.isArray(rows) || !rows.length) return null;
+    fsp.mkdir(path.dirname(CSCL_DISK_PATH), { recursive: true })
+      .then(() => fsp.writeFile(CSCL_DISK_PATH, JSON.stringify({ cachedAt: Date.now(), rows })))
+      .catch((err) => console.warn('[CCTV] NYC centerline disk cache write failed:', err?.message || err));
+    return build(rows, 'network');
+  } catch (error) {
+    console.warn('[CCTV] NYC centerline download error:', error?.message || error);
+    return null;
+  }
+}
+
+/**
+ * The road index for this refresh: in memory → immediate; otherwise a
+ * single-flight load, awaited only up to CSCL_COLD_WAIT_MS. A cold load that
+ * outlives the wait finishes in the background and invalidates the source
+ * cache so the next /api/cctv/sources call rebuilds with snapped poses.
+ * @returns {Promise<object|null>}
+ */
+async function loadNycRoadIndex() {
+  if (String(process.env.CCTV_ROAD_SNAP_ENABLED || '1').trim() === '0') return null;
+  if (_roadIndex?.index) return _roadIndex.index;
+  if (!_roadIndexInflight) {
+    _roadIndexInflight = fetchNycRoadIndex()
+      .then((index) => {
+        if (index) _cctvSourceCacheAt = 0; // rebuild with snapped poses on next request
+        return index;
+      })
+      .finally(() => { _roadIndexInflight = null; });
+  }
+  return Promise.race([
+    _roadIndexInflight,
+    new Promise((resolve) => setTimeout(() => resolve(null), CSCL_COLD_WAIT_MS)),
+  ]);
+}
+
+/**
+ * Snap cameras that carry a real signed facing onto the carriageway that
+ * agrees with it: the heading becomes the road's true bearing there and the
+ * mount moves onto the centreline (the catalog point stays in sourceLat/Lon
+ * so proximity dedupe still sees where the feed put it). Cameras without a
+ * high-confidence facing, or with no agreeing road within range, are
+ * returned untouched. Pure: exported for tests.
+ *
+ * @param {Array<object>} cameras - Normalized pack cameras (mutated in place).
+ * @param {object|null} index - From buildRoadIndex.
+ * @param {{maxDistanceM?: number}} [options]
+ * @returns {number} Cameras snapped.
+ */
+export function applyRoadSnap(cameras, index, { maxDistanceM = DEFAULT_ROAD_SNAP_MAX_M } = {}) {
+  if (!index || !Array.isArray(cameras)) return 0;
+  let snapped = 0;
+  for (const camera of cameras) {
+    if (!camera || camera.headingConfidence !== 'high') continue;
+    const hit = snapToRoad(index, camera.lat, camera.lon, camera.headingDeg, { maxDistanceM });
+    if (!hit) continue;
+    camera.sourceLat = camera.lat;
+    camera.sourceLon = camera.lon;
+    camera.lat = hit.lat;
+    camera.lon = hit.lon;
+    camera.headingDeg = hit.headingDeg;
+    camera.headingProvenance = `${camera.headingProvenance || 'facing'}+road`;
+    camera.roadSnappedM = Math.round(hit.distanceM);
+    snapped++;
+  }
+  return snapped;
+}
+
+/**
  * The 511NY pack from already-fetched rows. Never fetches on its own: the
  * rows come from fetch511nyRows() in refreshCctvSources, shared with the
  * NYC DOT facing join.
@@ -2533,10 +2650,12 @@ export function normalizeNy511CatalogPayload(rows, { statewide = false, excludeN
  * @param {{excludeNear?: Array<{lat:number,lon:number}>|null}} [options]
  * @returns {Array<object>}
  */
-function buildNy511Sources(rows, { excludeNear = null } = {}) {
+function buildNy511Sources(rows, { excludeNear = null, roadIndex = null } = {}) {
   if (!Array.isArray(rows)) return [];
   const statewide = String(process.env.CCTV_NY511_STATEWIDE || '').trim() === '1';
   const cameras = normalizeNy511CatalogPayload(rows, { statewide, excludeNear });
+  const maxSnapRaw = Number(process.env.CCTV_ROAD_SNAP_MAX_M || DEFAULT_ROAD_SNAP_MAX_M);
+  const snapped = applyRoadSnap(cameras, roadIndex, { maxDistanceM: Number.isFinite(maxSnapRaw) ? maxSnapRaw : DEFAULT_ROAD_SNAP_MAX_M });
   const maxRaw = Number(process.env.CCTV_NY511_MAX_SOURCES || DEFAULT_NY511_MAX_SOURCES);
   const maxCount = Number.isFinite(maxRaw)
     ? Math.max(8, Math.min(600, Math.floor(maxRaw)))
@@ -2544,7 +2663,7 @@ function buildNy511Sources(rows, { excludeNear = null } = {}) {
   const anchors = statewide ? [...NYCDOT_ANCHORS, ...NY511_STATEWIDE_ANCHORS] : NYCDOT_ANCHORS;
   const prioritized = prioritizeSources(cameras, maxCount, anchors);
   const facings = cameras.filter((camera) => camera.headingConfidence === 'high').length;
-  console.log(`[CCTV] Loaded 511NY camera sources: ${cameras.length} enabled${statewide ? ' statewide' : ' in NYC'} (${facings} with a published facing; using nearest ${prioritized.length})`);
+  console.log(`[CCTV] Loaded 511NY camera sources: ${cameras.length} enabled${statewide ? ' statewide' : ' in NYC'} (${facings} with a published facing, ${snapped} road-snapped; using nearest ${prioritized.length})`);
   return prioritized;
 }
 
@@ -2584,15 +2703,17 @@ async function fetchNycdotCatalog() {
  * @param {{ny511Rows?: Array<object>|null}} [options]
  * @returns {Array<object>}
  */
-function buildNycdotSources(payload, { ny511Rows = null } = {}) {
+function buildNycdotSources(payload, { ny511Rows = null, roadIndex = null } = {}) {
   if (!Array.isArray(payload)) return [];
   try {
     const facingIndex = ny511Rows ? build511nyFacingIndex(ny511Rows) : null;
     const models = loadNycdotModelRegistry();
     const cameras = normalizeNycdotCatalogPayload(payload, { facingIndex, models });
-    const facings = cameras.filter((camera) => camera.headingProvenance === '511ny').length;
+    const maxSnapRaw = Number(process.env.CCTV_ROAD_SNAP_MAX_M || DEFAULT_ROAD_SNAP_MAX_M);
+    const snapped = applyRoadSnap(cameras, roadIndex, { maxDistanceM: Number.isFinite(maxSnapRaw) ? maxSnapRaw : DEFAULT_ROAD_SNAP_MAX_M });
+    const facings = cameras.filter((camera) => String(camera.headingProvenance).startsWith('511ny')).length;
     const modelled = cameras.filter((camera) => camera.cameraModel).length;
-    console.log(`[CCTV] NYC DOT enrichment: ${facings} facings from 511NY (${facingIndex?.size ?? 0} indexed), ${modelled} cameras with a known model`);
+    console.log(`[CCTV] NYC DOT enrichment: ${facings} facings from 511NY (${facingIndex?.size ?? 0} indexed), ${modelled} cameras with a known model, ${snapped} road-snapped`);
 
     const maxRaw = Number(process.env.CCTV_NYCDOT_MAX_SOURCES || DEFAULT_NYCDOT_MAX_SOURCES);
     const maxCount = Number.isFinite(maxRaw)
@@ -2645,6 +2766,7 @@ function normalizeSourceItem(item) {
     // pan-tilt-zoom unit an operator can move. Absent unless the pack set it.
     ...(typeof item.headingProvenance === 'string' && item.headingProvenance ? { headingProvenance: item.headingProvenance } : {}),
     ...(typeof item.cameraModel === 'string' && item.cameraModel ? { cameraModel: item.cameraModel, ptz: item.ptz === true } : {}),
+    ...(Number.isFinite(item.roadSnappedM) ? { roadSnappedM: item.roadSnappedM } : {}),
   };
 }
 
@@ -2703,21 +2825,28 @@ async function refreshCctvSources() {
     // Every upstream fetch runs in this one parallel batch; the NYC DOT and
     // 511NY packs are then BUILT from the fetched payloads, because they share
     // the 511NY rows (facing join) and the 511NY pack dedupes against NYC DOT.
-    const [austinResult, caltransResult, tflResult, nycdotCatalog, ny511RowsResult] = await Promise.allSettled([
+    const [austinResult, caltransResult, tflResult, nycdotCatalog, ny511RowsResult, roadIndexResult] = await Promise.allSettled([
       loadAustinSourcesFromOpenData(),
       loadCaltransSourcesFromOpenData(),
       tflEnabled ? loadTflSourcesFromOpenData() : Promise.resolve([]),
       nycdotEnabled ? fetchNycdotCatalog() : Promise.resolve(null),
       wants511Rows ? fetch511nyRows() : Promise.resolve(null),
+      (nycdotEnabled || ny511Enabled) ? loadNycRoadIndex() : Promise.resolve(null),
     ]);
+    const roadIndex = roadIndexResult.status === 'fulfilled' ? roadIndexResult.value : null;
     fromAustin = austinResult.status === 'fulfilled' ? austinResult.value : [];
     fromCaltrans = caltransResult.status === 'fulfilled' ? caltransResult.value : [];
     fromTfl = tflResult.status === 'fulfilled' ? tflResult.value : [];
     const ny511Rows = ny511RowsResult.status === 'fulfilled' ? ny511RowsResult.value : null;
     fromNycdot = nycdotEnabled && nycdotCatalog.status === 'fulfilled'
-      ? buildNycdotSources(nycdotCatalog.value, { ny511Rows: nycdotJoin511 ? ny511Rows : null })
+      ? buildNycdotSources(nycdotCatalog.value, { ny511Rows: nycdotJoin511 ? ny511Rows : null, roadIndex })
       : [];
-    fromNy511 = ny511Enabled ? buildNy511Sources(ny511Rows, { excludeNear: fromNycdot }) : [];
+    // Dedupe against where the feed PUT each city camera as well as where the
+    // road snap moved it, so a shared mount is still recognised after snapping.
+    const nycdotPoints = fromNycdot.flatMap((camera) => (
+      Number.isFinite(camera.sourceLat) ? [camera, { lat: camera.sourceLat, lon: camera.sourceLon }] : [camera]
+    ));
+    fromNy511 = ny511Enabled ? buildNy511Sources(ny511Rows, { excludeNear: nycdotPoints, roadIndex }) : [];
   }
   // Live sources first so file/env overrides win on duplicate IDs (Map last-write).
   //
@@ -3064,6 +3193,7 @@ function cctvProxy() {
                 headingProvenance: source.headingProvenance,
                 cameraModel: source.cameraModel,
                 ptz: source.ptz,
+                roadSnappedM: source.roadSnappedM,
                 license: source.license,
               })),
             };

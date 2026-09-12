@@ -2248,6 +2248,22 @@ silently demoting every later lookup for the session.
   NYC DOT / 511NY packs are built from the payloads afterwards, so the 511NY list is fetched
   once per refresh. Merge order appends 511NY after NYC DOT; a lowered `CCTV_MAX_SOURCES`
   trims 511NY first.
+  **Road snap (2026-09-12):** a signed facing is a carriageway name, not a bearing (511NY
+  calls the BQE at Division Ave "Eastbound"; the lanes run 22°). `applyRoadSnap()` takes every
+  NYC DOT / 511NY camera with a `high` facing, finds NYC Street Centerline pieces
+  (`server/providers/common/road-snap.js`; CSCL highway/bridge/tunnel/ramp rows with
+  `trafdir`, fetched keyless from NYC Open Data, disk-cached 7 days under `.gev-cache/cscl/`,
+  ~41k two-point pieces on a 0.01° grid) within 80 m (`CCTV_ROAD_SNAP_MAX_M`) whose travel
+  direction agrees with the signed heading within 85° — enough to absorb a due-north
+  "eastbound" while still separating the two carriageways — and moves the camera onto the
+  nearest agreeing piece with its true bearing (`headingProvenance` gains `+road`,
+  `roadSnappedM` records the move, `sourceLat/Lon` keep the catalog point so 511NY dedupe
+  still recognises a shared mount). Measured: 255 of 291 directional 511NY cameras in the
+  city snap, median move 11 m (p90 20 m), median heading change 29° (p90 70°); the misses
+  are Westchester rows outside CSCL coverage. The index loads in the same parallel batch as
+  the packs; a COLD fetch is awaited at most 8 s (measured ~3.5 s), and if it outlives the
+  wait it finishes in the background and zeroes the source-cache timestamp so the next
+  `/api/cctv/sources` rebuilds with snapped poses. `CCTV_ROAD_SNAP_ENABLED=0` disables.
 - **CCTV v3 UX — viewshed + calibration gizmo** (built 2026-07-05 and field
   validated 2026-07-21): the COVERAGE toggle is a
   tri-state cycle `OFF → ON → VIEWSHED`; viewshed mode renders each visible camera's frustum

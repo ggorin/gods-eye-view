@@ -29,6 +29,12 @@ of current runtime behavior, see [`docs/CURRENT-STATE.md`](docs/CURRENT-STATE.md
   the same mount as an NYC DOT camera are not duplicated. `CCTV_MAX_SOURCES`
   default is now 1,400 (ceiling 1,500) so every default pack seats whole.
 
+- New York highway cameras with a published facing are aligned to the road:
+  a signed "Eastbound" now resolves to the true bearing of the eastbound
+  lanes at that point, using NYC's street centerline, and the camera mount
+  moves onto the carriageway. Before this the BQE's "Eastbound" cameras
+  pointed due east across the neighbourhood.
+
 - Separate terrain, traffic, FIRMS and GBFS middleware into focused provider
   modules, preserving local configuration, routes and cache/error behavior.
 

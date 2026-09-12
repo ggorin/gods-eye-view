@@ -140,6 +140,12 @@ export const DATA_CREDITS = [
       '<a href="https://511ny.org/" target="_blank" rel="noopener">powered by 511NY</a> (NYSDOT)',
   },
   {
+    key: 'nyc-cscl',
+    html:
+      'Camera road alignment (New York City): NYC Street Centerline — ' +
+      '<a href="https://data.cityofnewyork.us/City-Government/Centerline/inkn-q76z" target="_blank" rel="noopener">NYC Open Data</a>',
+  },
+  {
     key: 'gbfs',
     html: 'Bikeshare availability: GBFS operator feeds (e.g. Austin BCycle)',
   },
